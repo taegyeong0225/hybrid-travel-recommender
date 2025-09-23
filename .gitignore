@@ -1,0 +1,17 @@
+# Ignore Node.js modules
+node_modules/
+
+# Ignore Python virtual environment
+backend/venv/
+
+# Ignore React build output
+frontend/build/
+
+# Ignore frontend project (as it's a separate git repo or managed separately)
+frontend/
+
+# Ignore .DS_Store files on macOS
+.DS_Store
+
+# Ignore environment variables file
+.env
