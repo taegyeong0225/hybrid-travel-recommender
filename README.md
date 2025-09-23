@@ -1,7 +1,3 @@
-# React, FastAPI, PostgreSQL 프로젝트
-
-이 프로젝트는 React 프론트엔드, FastAPI 백엔드, PostgreSQL 데이터베이스로 구성된 풀스택 애플리케이션의 기본 구조입니다.
-
 ## 프로젝트 구조
 
 - `frontend/`: React 애플리케이션
