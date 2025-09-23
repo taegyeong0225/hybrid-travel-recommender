@@ -1,6 +1,28 @@
 version: '3.8'
 
 services:
+  backend:
+    build: ./backend
+    container_name: fastapi_backend
+    restart: always
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/app:/app/app
+    environment:
+      - DATABASE_URL=postgresql://user:password@db/app_db
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    container_name: react_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+
   db:
     image: postgres:13
     container_name: postgres_db

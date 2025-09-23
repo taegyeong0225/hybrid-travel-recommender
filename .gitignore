@@ -6,13 +6,15 @@ backend/venv/
 
 # Ignore React build output
 frontend/build/
+frontend/node_modules/
 
-# Ignore frontend project (as it's a separate git repo or managed separately)
-frontend/
+# Ignore Python cache files
+**/__pycache__/
+*.pyc
+*.log
 
 # Ignore .DS_Store files on macOS
 .DS_Store
 
 # Ignore environment variables file
-.env
 .env
