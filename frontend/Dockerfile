@@ -21,6 +21,9 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy the built files from the builder stage
 COPY --from=builder /app/build /usr/share/nginx/html
 
+# 권한 수정 (모든 사용자 읽기 가능)
+RUN chmod -R 755 /usr/share/nginx/html
+
 # Expose port 80 (default for nginx)
 EXPOSE 80
 

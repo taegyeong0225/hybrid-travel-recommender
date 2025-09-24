@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import Optional
 import subprocess
 import os
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -25,7 +26,7 @@ import json
 
 class RequestData(BaseModel):
     region: str
-    user_id: str | None = None
+    user_id: Optional[str] = None
 
 @app.post("/recommend")
 def recommend(data: RequestData):

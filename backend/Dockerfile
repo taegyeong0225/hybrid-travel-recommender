@@ -4,6 +4,9 @@ FROM python:3.9-slim
 # Set working directory
 WORKDIR /app
 
+# Copy application code
+COPY ./app /app
+
 # OS 패키지 설치 (scikit-surprise 빌드용)
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -15,9 +18,6 @@ RUN pip install --no-cache-dir cython numpy scipy
 # Install dependencies
 COPY ./requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy application code
-COPY ./app /app/app
 
 # Expose port and set command
 EXPOSE 8000
