@@ -3,3 +3,8 @@ uvicorn[standard]
 psycopg2-binary
 sqlalchemy
 python-dotenv
+pandas
+numpy<2
+scikit-learn
+scikit-surprise
+joblib
