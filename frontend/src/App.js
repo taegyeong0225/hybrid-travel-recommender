@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./Home";
 import About from "./About";
@@ -7,8 +7,11 @@ import "./App.css";
 
 function App() {
   const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const didFetch = useRef(false);
 
-  const handleRecommend = async () => {
+  const fetchRecommendations = async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/recommend", {
         method: "POST",
@@ -25,8 +28,18 @@ function App() {
     } catch (error) {
       console.error("Error fetching recommendation:", error);
       setResult({ error: "추천 요청 실패" });
+    } finally {
+      setLoading(false);
     }
   };
+
+  // 첫 로드 시 자동 호출
+  useEffect(() => {
+    if (!didFetch.current) {
+      fetchRecommendations();
+      didFetch.current = true;
+    }
+  }, []);
 
   return (
     <Router>
@@ -46,11 +59,29 @@ function App() {
 
         <Routes>
           <Route path="/" element={
-            <div>
-              <h2>여행지 추천 테스트</h2>
-              <button onClick={handleRecommend}>추천 받기</button>
-              {result && (
-                <pre>{JSON.stringify(result, null, 2)}</pre>
+            <div className="recommend-container">
+              <h2>오늘의 추천 여행지 ✈️</h2>
+
+              {loading && <p>추천 불러오는 중...</p>}
+              {result?.error && <p className="error-msg">{result.error}</p>}
+
+              {result?.recommendations && (
+                <div className="card-grid">
+                  {result.recommendations.map((place, index) => (
+                    <div key={index} className="card">
+                      <img
+                        src={`/images/${place.name}.jpg`}
+                        alt={place.name}
+                        onError={(e) => (e.target.src = "/images/default.jpg")}
+                      />
+                      <div className="card-content">
+                        <h3>{place.name}</h3>
+                        <p>{place.region}</p>
+                        <p>⭐ {typeof place.score === "number" ? place.score.toFixed(3) : place.score}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           } />

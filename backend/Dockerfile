@@ -18,6 +18,7 @@ RUN pip install --no-cache-dir cython numpy scipy
 # Install dependencies
 COPY ./requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir requests pandas numpy
 
 # Expose port and set command
 EXPOSE 8000

@@ -1,60 +1,113 @@
-# -*- coding: utf-8 -*-
 import pandas as pd
-import numpy as np
-import os
-import pickle
-import sys
-import json
+from datetime import datetime
 
-def get_recommendations(region_id: str, user_id: str):
-    """
-    Generate recommendations for a given user in a given region.
+from weather_api import WeatherAPI
+from popularity_calculator import PopularityCalculator
+from context_booster import ContextBooster
 
-    Args:
-        region_id (str): The region ID (e.g., 'E', 'F', 'G', 'H').
-        user_id (str): The user ID.
-    """
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    SAVEMODEL_DIR = os.path.join(BASE_DIR, "4.SaveModel")
-    PREPROC_DIR = os.path.join(BASE_DIR, "2.preprocessed")
+class TodayRecommender:
+    """오늘의 추천 엔진"""
 
-    # Load model
-    model_path = os.path.join(SAVEMODEL_DIR, "model", f"svd_model_{region_id}.pkl")
-    try:
-        with open(model_path, 'rb') as file:
-            model = pickle.load(file)
-    except FileNotFoundError:
-        return {"error": f"Model for region {region_id} not found."}
+    def __init__(self, df: pd.DataFrame, weather_api_key: str):
+        self.df = df
+        self.weather_api = WeatherAPI(weather_api_key)
+        self.context_booster = ContextBooster()
 
-    # Load data
-    data_path = os.path.join(PREPROC_DIR, f"df{region_id}.csv")
-    try:
-        df = pd.read_csv(data_path)
-    except FileNotFoundError:
-        return {"error": f"Data for region {region_id} not found."}
+    def recommend(self, top_n: int = 20) -> dict:
+        """메인 추천 로직"""
 
-    all_items = df['itemID'].unique()
-    user_rated_items = df[df['userID'] == user_id]['itemID'].unique()
-    items_to_predict = np.setdiff1d(all_items, user_rated_items)
+        # 1. 인기도 계산
+        pop_calc = PopularityCalculator(self.df)
+        popularity_df = pop_calc.calculate_popularity()
+        trending_df = pop_calc.calculate_trending()
 
-    predictions = []
-    for item_id in items_to_predict:
-        pred = model.predict(user_id, item_id)
-        predictions.append((item_id, pred.est))
+        # 2. 데이터 병합
+        result = popularity_df.merge(
+            trending_df,
+            on='VISIT_AREA_NM',
+            how='left'
+        ).fillna({'trending_score': 0})
 
-    predictions.sort(key=lambda x: x[1], reverse=True)
+        # 집 같은 불필요한 장소 제거
+        result = result[result['VISIT_AREA_NM'] != '집']
 
-    top_5_recs = [item[0] for item in predictions[:5]]
 
-    return {"recommendations": top_5_recs}
+        # result = popularity_df.merge(
+        #     trending_df,
+        #     on='VISIT_AREA_NM',
+        #     how='left'
+        # ).fillna({'trending_score': 0})
 
-if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print(json.dumps({"error": "Usage: python recommender.py <region_id> <user_id>"}))
-        sys.exit(1)
+        # 3. 관광지 정보 조인
+        area_info = self.df[['VISIT_AREA_NM', 'VISIT_AREA_TYPE_CD', 'SIDO']].drop_duplicates()
+        result = result.merge(area_info, on='VISIT_AREA_NM', how='left')
 
-    region = sys.argv[1]
-    user = sys.argv[2]
-    
-    recommendations = get_recommendations(region, user)
-    print(json.dumps(recommendations, ensure_ascii=False))
+        # 4. 날씨 정보 가져오기
+        unique_sidos = result['SIDO'].dropna().unique().tolist()
+        weather_dict = {sido: self.weather_api.get_weather(sido) for sido in unique_sidos}
+
+        # 5. 컨텍스트 점수 계산
+        result['context_score'] = result.apply(
+            lambda row: self.context_booster.calculate_context_score(row, weather_dict),
+            axis=1
+        )
+
+        # 6. 최종 점수
+        result['final_score'] = (
+            0.5 * result['popularity_score'] +
+            0.1 * result['trending_score'] +
+            0.4 * result['context_score']
+        )
+
+        # 7. Top N 자르기
+        final_recommendations = result.sort_values(by="final_score", ascending=False).head(top_n)
+
+        # 8. 결과 포맷팅
+        return self._format_output(final_recommendations, weather_dict)
+
+    def _format_output(self, df: pd.DataFrame, weather_dict: dict) -> dict:
+        """출력 포맷"""
+
+        recommendations = []
+        for idx, row in df.iterrows():
+            recommendations.append({
+                'rank': idx + 1,
+                'name': row['VISIT_AREA_NM'],
+                'type': self._get_type_name(row.get('VISIT_AREA_TYPE_CD', 8)),
+                'region': row.get('SIDO', ''),
+                'score': round(row['final_score'], 3),
+                'popularity': round(row['popularity_score'], 3),
+                'context_score': round(row['context_score'], 3),
+                'avg_rating': round(row['avg_rating'], 2),
+                'is_trending': row['trending_score'] > 0.5
+            })
+
+        return {
+            'recommendations': recommendations,
+            'metadata': {
+                'season': self.context_booster.get_season(),
+                'daytype': self.context_booster.get_daytype(),
+                'weather_summary': self._summarize_weather(weather_dict),
+                'generated_at': datetime.now().isoformat(),
+                'total_candidates': len(df)
+            }
+        }
+
+    def _get_type_name(self, type_cd: int) -> str:
+        """유형명 변환"""
+        mapping = {
+            1: '자연 관광지', 2: '문화 관광지', 3: '레저/스포츠',
+            4: '쇼핑', 5: '음식점', 6: '숙박', 7: '축제/행사', 8: '기타'
+        }
+        return mapping.get(type_cd, '기타')
+
+    def _summarize_weather(self, weather_dict: dict) -> dict:
+        """날씨 요약"""
+        summary = {}
+        for sido, weather in weather_dict.items():
+            summary[sido] = {
+                'condition': weather['condition'],
+                'temperature': round(weather['temperature'], 1),
+                'description': weather['description']
+            }
+        return summary

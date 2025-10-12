@@ -29,23 +29,14 @@ class RequestData(BaseModel):
     user_id: Optional[str] = None
 
 @app.post("/recommend")
-def recommend(data: RequestData):
-    region_map = {
-        "E_capital": "E",
-        "F_east": "F",
-        "G_west": "G",
-        "H_jeju": "H",
-    }
-    region_id = region_map.get(data.region)
-    if not region_id:
-        return {"error": "Invalid region"}
+def recommend():
+    result = subprocess.run(["python", "app/ml/main.py", "--json"], capture_output=True)
+    output = result.stdout.decode("utf-8").strip()
 
-    user_id = data.user_id or "e000004"
-
-    script = os.path.join(BASE_DIR, "ml", "recommender.py")
+    if not output:
+        return {"error": "모델 실행 결과가 비어 있습니다."}
 
     try:
-        result = subprocess.check_output(["python", script, region_id, user_id], stderr=subprocess.STDOUT)
-        return json.loads(result.decode("utf-8"))
-    except subprocess.CalledProcessError as e:
-        return {"error": e.output.decode("utf-8")}
+        return json.loads(output)
+    except json.JSONDecodeError as e:
+        return {"error": f"JSON 파싱 실패: {str(e)}", "raw_output": output}
