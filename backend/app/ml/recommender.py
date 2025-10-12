@@ -2,9 +2,9 @@
 import pandas as pd
 import numpy as np
 import os
-import joblib
 import pickle
 import sys
+import json
 
 def get_recommendations(region_id: str, user_id: str):
     """
@@ -50,11 +50,11 @@ def get_recommendations(region_id: str, user_id: str):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        print("Usage: python recommender.py <region_id> <user_id>")
+        print(json.dumps({"error": "Usage: python recommender.py <region_id> <user_id>"}))
         sys.exit(1)
 
     region = sys.argv[1]
     user = sys.argv[2]
     
     recommendations = get_recommendations(region, user)
-    print(recommendations)
+    print(json.dumps(recommendations, ensure_ascii=False))
