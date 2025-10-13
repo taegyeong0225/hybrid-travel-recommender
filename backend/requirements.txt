@@ -9,3 +9,7 @@ scikit-learn
 scikit-surprise
 joblib
 requests
+passlib
+python-jose[cryptography]
+bcrypt
+python-multipart

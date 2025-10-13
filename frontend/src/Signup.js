@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './App.css';
+import './App.css'; // Assuming shared styles
 
-function Login() {
+function Signup() {
+    const [name, setName] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -12,27 +13,25 @@ function Login() {
         e.preventDefault();
         setError('');
 
-        const formData = new URLSearchParams();
-        formData.append('username', username);
-        formData.append('password', password);
+        if (!name || !username || !password) {
+            setError('모든 필드를 입력해주세요.');
+            return;
+        }
 
         try {
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch('/api/auth/signup', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: formData,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, username, password }),
             });
 
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.detail || '로그인에 실패했습니다.');
+                throw new Error(data.detail || '회원가입에 실패했습니다.');
             }
 
-            const data = await response.json();
-            localStorage.setItem('token', data.access_token);
-            
-            // Navigate to home and force a reload to update App state
-            window.location.href = '/';
+            // Signup successful, navigate to login page
+            navigate('/login');
 
         } catch (err) {
             setError(err.message);
@@ -40,9 +39,17 @@ function Login() {
     };
 
     return (
-        <div className="login-container"> 
-            <h2>로그인</h2>
+        <div className="login-container"> {/* Using login-container style for consistency */}
+            <h2>회원가입</h2>
             <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                    <label>이름</label>
+                    <input 
+                        type="text" 
+                        value={name} 
+                        onChange={(e) => setName(e.target.value)} 
+                    />
+                </div>
                 <div className="form-group">
                     <label>아이디</label>
                     <input 
@@ -60,13 +67,13 @@ function Login() {
                     />
                 </div>
                 {error && <p className="error-msg">{error}</p>}
-                <button type="submit">로그인</button>
+                <button type="submit">가입하기</button>
             </form>
             <p>
-                계정이 없으신가요? <Link to="/signup">회원가입</Link>
+                이미 계정이 있으신가요? <Link to="/login">로그인</Link>
             </p>
         </div>
     );
 }
 
-export default Login;
+export default Signup;

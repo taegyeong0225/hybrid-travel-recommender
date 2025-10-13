@@ -1,28 +1,36 @@
 import React, { useState, useEffect, useRef } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
 import Home from "./Home";
 import About from "./About";
 import Login from "./Login";
+import Signup from "./Signup"; // Import Signup component
 import "./App.css";
 
 function App() {
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const didFetch = useRef(false);
+
+  useEffect(() => {
+    // 1. Fetch recommendations on initial load
+    if (!didFetch.current) {
+      fetchRecommendations();
+      didFetch.current = true;
+    }
+
+    // 2. Check for user token and fetch user data
+    const token = localStorage.getItem('token');
+    if (token && !currentUser) {
+      fetchCurrentUser(token);
+    }
+  }, [currentUser]);
 
   const fetchRecommendations = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/recommend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ region: "E_capital", user_id: "e000004" })
-      });
-
-      if (!response.ok) {
-        throw new Error("Request failed");
-      }
-
+      const response = await fetch("http://backend:8000/recommend", { method: "POST" })
+      if (!response.ok) throw new Error("Request failed");
       const data = await response.json();
       setResult(data);
     } catch (error) {
@@ -33,13 +41,54 @@ function App() {
     }
   };
 
-  // 첫 로드 시 자동 호출
-  useEffect(() => {
-    if (!didFetch.current) {
-      fetchRecommendations();
-      didFetch.current = true;
+  const fetchCurrentUser = async (token) => {
+    try {
+      const response = await fetch('/api/auth/me', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const userData = await response.json();
+        setCurrentUser(userData);
+      }
+    } catch (error) {
+      console.error("Failed to fetch user", error);
+      // Token might be invalid, so clear it
+      handleLogout();
     }
-  }, []);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setCurrentUser(null);
+    // Navigate to home to prevent being on a protected route after logout
+    window.location.href = '/';
+  };
+
+  const handlePlaceAction = async (endpoint, poi_id) => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+    try {
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ poi_id: poi_id })
+      });
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.detail || '요청 실패');
+      }
+      alert('처리되었습니다!');
+    } catch (error) {
+      console.error('Place action failed:', error);
+      alert(`오류: ${error.message}`);
+    }
+  };
 
   return (
     <Router>
@@ -53,7 +102,17 @@ function App() {
             <li><Link to="/about">About</Link></li>
           </ul>
           <div className="nav-login">
-            <Link to="/login">로그인</Link>
+            {currentUser ? (
+              <>
+                <span className="welcome-msg">{currentUser.name}님</span>
+                <button onClick={handleLogout} className="logout-btn">로그아웃</button>
+              </>
+            ) : (
+              <>
+                <Link to="/login">로그인</Link>
+                <Link to="/signup" style={{ marginLeft: '10px' }}>회원가입</Link>
+              </>
+            )}
           </div>
         </nav>
 
@@ -61,10 +120,8 @@ function App() {
           <Route path="/" element={
             <div className="recommend-container">
               <h2>오늘의 추천 여행지 ✈️</h2>
-
               {loading && <p>추천 불러오는 중...</p>}
               {result?.error && <p className="error-msg">{result.error}</p>}
-
               {result?.recommendations && (
                 <div className="card-grid">
                   {result.recommendations.map((place, index) => (
@@ -78,6 +135,12 @@ function App() {
                         <h3>{place.name}</h3>
                         <p>{place.region}</p>
                         <p>⭐ {typeof place.score === "number" ? place.score.toFixed(3) : place.score}</p>
+                        {currentUser && (
+                          <div className="card-actions">
+                            <button onClick={() => handlePlaceAction('/api/favorites/add', place.name)}>찜하기</button>
+                            <button onClick={() => handlePlaceAction('/api/visited/add', place.name)}>가봤어요</button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -87,6 +150,7 @@ function App() {
           } />
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
         </Routes>
       </div>
     </Router>
