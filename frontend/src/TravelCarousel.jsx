@@ -40,16 +40,16 @@ const TravelCarousel = ({ places, currentUser, handlePlaceAction }) => {
             alt={place.name}
             onError={handleImageError}
           />
+          {currentUser && (
+            <div className="card-actions">
+              <button onClick={() => handlePlaceAction('/api/favorites/add', place.name)}>❤️</button>
+              <button onClick={() => handlePlaceAction('/api/visited/add', place.name)}>✔️</button>
+            </div>
+          )}
           <div className="card-content">
             <h3>{place.name}</h3>
             <p>{place.region}</p>
             <p>⭐ {typeof place.score === "number" ? place.score.toFixed(3) : place.score}</p>
-            {currentUser && (
-              <div className="card-actions">
-                <button onClick={() => handlePlaceAction('/api/favorites/add', place.name)}>찜하기</button>
-                <button onClick={() => handlePlaceAction('/api/visited/add', place.name)}>가봤어요</button>
-              </div>
-            )}
           </div>
         </SwiperSlide>
       ))}

@@ -3,12 +3,11 @@ FROM node:20-alpine as builder
 
 WORKDIR /app
 
-COPY package.json ./
+COPY package*.json ./
 # Use npm ci for cleaner installs if package-lock.json is present
 RUN npm install
 
-COPY public ./public
-COPY src ./src
+COPY . .
 
 RUN npm run build
 

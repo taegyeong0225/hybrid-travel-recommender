@@ -23,6 +23,7 @@
 
 
 .travel-carousel .card {
+  position: relative;
   border: 1px solid #ddd;
   border-radius: 12px;
   overflow: hidden;
@@ -34,7 +35,7 @@
 }
 
 .travel-carousel .swiper-slide-active .card {
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 15px 30px rgba(0, 0, a, 0.2);
 }
 
 .travel-carousel .card img {
@@ -90,4 +91,31 @@
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
   transform: translateY(-4px) scale(1.04);
   transition: box-shadow 0.25s, transform 0.25s;
+}
+
+.card-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  display: flex;
+  gap: 5px;
+}
+
+.card-actions button {
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-actions button:hover {
+  background: rgba(0, 0, 0, 0.7);
 }
