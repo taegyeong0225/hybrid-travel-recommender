@@ -1,0 +1,120 @@
+/* ===== New Login Page Style ===== */
+
+.login-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  background: linear-gradient(120deg, #ffffff 0%, #bcd8fd 100%);
+  overflow: hidden; /* Redundant due to body style, but good for container context */
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.login-box {
+  padding: 40px;
+  width: 400px;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-align: center;
+  color: #333;
+  animation: fadeInDown 0.5s ease-out forwards;
+}
+
+.login-box h2 {
+  font-size: 2.2em;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #1E3A8A;
+}
+
+.login-subtitle {
+  margin-bottom: 30px;
+  font-size: 1em;
+  color: #555;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 15px;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 10px;
+  font-size: 1em;
+  color: #333;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-group input::placeholder {
+  color: #888;
+}
+
+.input-group input:focus {
+  border-color: #1E3A8A;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 15px rgba(30, 58, 138, 0.1);
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background-color: #1E3A8A;
+  color: white;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  background-color: #2563eb;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(30, 58, 138, 0.2);
+}
+
+.error-msg {
+  color: #d93025;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.login-footer {
+  margin-top: 25px;
+  font-size: 0.9em;
+  color: #555;
+}
+
+.login-footer a {
+  color: #1E3A8A;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-footer a:hover {
+  text-decoration: underline;
+}

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import About from "./About.jsx";
 import Login from "./Login.jsx";
 import Signup from "./Signup.jsx"; // Import Signup component
+import TravelCarousel from "./TravelCarousel.jsx"; // Import Carousel component
 import "./App.css";
 
 function App() {
@@ -11,6 +12,21 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const didFetch = useRef(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 10;
+      if (isScrolled !== scrolled) {
+        setScrolled(isScrolled);
+      }
+    };
+
+    document.addEventListener('scroll', handleScroll);
+    return () => {
+      document.removeEventListener('scroll', handleScroll);
+    };
+  }, [scrolled]);
 
   // useEffect(() => {
   //   let isMounted = true; // 언마운트된 이후 setState 방지
@@ -119,9 +135,11 @@ function App() {
   return (
     <Router>
       <div className="App">
-        <nav className="main-nav">
+        <nav className={`main-nav ${scrolled ? 'scrolled' : ''}`}>
           <div className="nav-logo">
-            <Link to="/">TripMate</Link>
+            <Link to="/">
+              <img src="/logo.png" alt="TripMate Logo" />
+            </Link>
           </div>
           <ul className="nav-links">
             <li><Link to="/">Home</Link></li>
@@ -134,55 +152,32 @@ function App() {
                 <button onClick={handleLogout} className="logout-btn">로그아웃</button>
               </>
             ) : (
-              <>
                 <Link to="/login">로그인</Link>
-                <Link to="/signup" style={{ marginLeft: '10px' }}>회원가입</Link>
-              </>
             )}
           </div>
         </nav>
 
-        <Routes>
-          <Route path="/" element={
-            <div className="recommend-container">
-              <h2>오늘의 추천 여행지 ✈️</h2>
-              {loading && <p>추천 불러오는 중...</p>}
-              {result?.error && <p className="error-msg">{result.error}</p>}
-              {result?.recommendations && (
-                <div className="card-grid">
-                  {result.recommendations.map((place, index) => (
-                    <div key={index} className="card">
-                      <img
-                        src={`/images/${encodeURIComponent(place.name)}.jpg`}
-                        alt={place.name}
-                        onError={(e) => {
-                          if (!e.target.src.includes('/images/default.jpg')) {
-                            e.target.onerror = null;
-                            e.target.src = '/images/default.jpg';
-                          }
-                        }}
-                      />
-                      <div className="card-content">
-                        <h3>{place.name}</h3>
-                        <p>{place.region}</p>
-                        <p>⭐ {typeof place.score === "number" ? place.score.toFixed(3) : place.score}</p>
-                        {currentUser && (
-                          <div className="card-actions">
-                            <button onClick={() => handlePlaceAction('/api/favorites/add', place.name)}>찜하기</button>
-                            <button onClick={() => handlePlaceAction('/api/visited/add', place.name)}>가봤어요</button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          } />
-          <Route path="/about" element={<About />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
+        <main className="main-content">
+          <Routes>
+            <Route path="/" element={
+              <div className="recommend-container">
+                <h2>오늘의 추천 여행지 ✈️</h2>
+                {loading && <p>추천 불러오는 중...</p>}
+                {result?.error && <p className="error-msg">{result.error}</p>}
+                {result?.recommendations && (
+                  <TravelCarousel 
+                    places={result.recommendations} 
+                    currentUser={currentUser} 
+                    handlePlaceAction={handlePlaceAction} 
+                  />
+                )}
+              </div>
+            } />
+            <Route path="/about" element={<About />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+          </Routes>
+        </main>
       </div>
     </Router>
   );
