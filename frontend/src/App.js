@@ -1,35 +1,60 @@
 import React, { useState, useEffect, useRef } from "react";
-import { BrowserRouter as Router, Routes, Route, Link, useNavigate } from "react-router-dom";
-import Home from "./Home";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import About from "./About";
 import Login from "./Login";
 import Signup from "./Signup"; // Import Signup component
 import "./App.css";
 
 function App() {
+  console.log("렌더링 됨 - App 컴포넌트");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const didFetch = useRef(false);
 
-  useEffect(() => {
-    // 1. Fetch recommendations on initial load
-    if (!didFetch.current) {
-      fetchRecommendations();
-      didFetch.current = true;
-    }
+  // useEffect(() => {
+  //   let isMounted = true; // 언마운트된 이후 setState 방지
+  
+  //   const loadRecommendations = async () => {
+  //     if (!didFetch.current && isMounted) {
+  //       await fetchRecommendations();
+  //       didFetch.current = true;
+  //     }
+  //   };
+  
+  //   loadRecommendations();
+  
+  //   // 클린업
+  //   return () => {
+  //     isMounted = false;
+  //   };
+  // }, []); // 상태를 의존성에 넣지 말기
 
-    // 2. Check for user token and fetch user data
-    const token = localStorage.getItem('token');
-    if (token && !currentUser) {
-      fetchCurrentUser(token);
-    }
-  }, [currentUser]);
+  useEffect(() => {
+    console.log("✅ useEffect triggered");
+  
+    let isMounted = true;
+  
+    const loadRecommendations = async () => {
+      if (!didFetch.current && isMounted) {
+        console.log("📡 fetching recommendations...");
+        await fetchRecommendations();
+        didFetch.current = true;
+      }
+    };
+  
+    loadRecommendations();
+  
+    return () => {
+      console.log("🧹 cleanup triggered");
+      isMounted = false;
+    };
+  }, []);
 
   const fetchRecommendations = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://backend:8000/recommend", { method: "POST" })
+      const response = await fetch("http://localhost:8000/recommend", { method: "POST" })
       if (!response.ok) throw new Error("Request failed");
       const data = await response.json();
       setResult(data);
@@ -41,6 +66,7 @@ function App() {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const fetchCurrentUser = async (token) => {
     try {
       const response = await fetch('/api/auth/me', {
@@ -127,9 +153,14 @@ function App() {
                   {result.recommendations.map((place, index) => (
                     <div key={index} className="card">
                       <img
-                        src={`/images/${place.name}.jpg`}
+                        src={`${process.env.PUBLIC_URL}/images/${encodeURIComponent(place.name)}.jpg`}
                         alt={place.name}
-                        onError={(e) => (e.target.src = "/images/default.jpg")}
+                        onError={(e) => {
+                          if (e.target.src !== "/images/default.jpg") {
+                            e.target.onerror = null; // 무한 루프 방지
+                            e.target.src = `${process.env.PUBLIC_URL}/images/default.jpg`;
+                          }
+                        }}
                       />
                       <div className="card-content">
                         <h3>{place.name}</h3>
