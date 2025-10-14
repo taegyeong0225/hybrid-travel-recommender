@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import About from "./About";
-import Login from "./Login";
-import Signup from "./Signup"; // Import Signup component
+import About from "./About.jsx";
+import Login from "./Login.jsx";
+import Signup from "./Signup.jsx"; // Import Signup component
 import "./App.css";
 
 function App() {
@@ -153,12 +153,12 @@ function App() {
                   {result.recommendations.map((place, index) => (
                     <div key={index} className="card">
                       <img
-                        src={`${process.env.PUBLIC_URL}/images/${encodeURIComponent(place.name)}.jpg`}
+                        src={`/images/${encodeURIComponent(place.name)}.jpg`}
                         alt={place.name}
                         onError={(e) => {
-                          if (e.target.src !== "/images/default.jpg") {
-                            e.target.onerror = null; // 무한 루프 방지
-                            e.target.src = `${process.env.PUBLIC_URL}/images/default.jpg`;
+                          if (!e.target.src.includes('/images/default.jpg')) {
+                            e.target.onerror = null;
+                            e.target.src = '/images/default.jpg';
                           }
                         }}
                       />
