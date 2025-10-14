@@ -36,6 +36,20 @@ def read_root():
 # The recommendation endpoint from previous work
 import subprocess
 import json
+import math
+
+def clean_float_values(obj):
+    if isinstance(obj, dict):
+        return {k: clean_float_values(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [clean_float_values(i) for i in obj]
+    elif isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return None
+        else:
+            return obj
+    else:
+        return obj
 
 @app.post("/recommend") # Changed to /recommend to match frontend request path
 def recommend():
@@ -48,6 +62,8 @@ def recommend():
         return {"error": "Failed to get recommendations", "details": error_msg}
 
     try:
-        return json.loads(output)
+        parsed_result = json.loads(output)
+        cleaned_result = clean_float_values(parsed_result)
+        return cleaned_result
     except json.JSONDecodeError as e:
         return {"error": f"Failed to parse recommendation JSON: {str(e)}", "raw_output": output}

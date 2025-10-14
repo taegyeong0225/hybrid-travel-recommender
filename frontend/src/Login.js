@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import './App.css';
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -56,6 +55,8 @@ function Login() {
                     <input 
                         type="password" 
                         value={password} 
+                        placeholder="비밀번호"
+                        autoComplete="current-password"
                         onChange={(e) => setPassword(e.target.value)} 
                     />
                 </div>
