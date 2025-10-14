@@ -1,11 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import './App.css';
+import './Login.css';
 
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+
+    useEffect(() => {
+        // Component mounts: disable scroll
+        document.body.style.overflow = 'hidden';
+        // Component unmounts: enable scroll
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, []); // Empty dependency array ensures this runs only once on mount and unmount
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,7 +39,6 @@ function Login() {
             const data = await response.json();
             localStorage.setItem('token', data.access_token);
             
-            // Navigate to home and force a reload to update App state
             window.location.href = '/';
 
         } catch (err) {
@@ -39,33 +47,37 @@ function Login() {
     };
 
     return (
-        <div className="login-container"> 
-            <h2>로그인</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label>아이디</label>
-                    <input 
-                        type="text" 
-                        value={username} 
-                        onChange={(e) => setUsername(e.target.value)} 
-                    />
+        <div className="login-page-container"> 
+            <div className="login-box">
+                <h2>Welcome Back</h2>
+                <p className="login-subtitle">Sign in to continue to TripMate</p>
+                <form onSubmit={handleSubmit}>
+                    <div className="input-group">
+                        <input 
+                            type="text" 
+                            value={username} 
+                            onChange={(e) => setUsername(e.target.value)} 
+                            placeholder="Username"
+                            required
+                        />
+                    </div>
+                    <div className="input-group">
+                        <input 
+                            type="password" 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                            placeholder="Password"
+                            autoComplete="current-password"
+                            required
+                        />
+                    </div>
+                    {error && <p className="error-msg">{error}</p>}
+                    <button type="submit" className="login-btn">Login</button>
+                </form>
+                <div className="login-footer">
+                    <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
                 </div>
-                <div className="form-group">
-                    <label>비밀번호</label>
-                    <input 
-                        type="password" 
-                        value={password} 
-                        placeholder="비밀번호"
-                        autoComplete="current-password"
-                        onChange={(e) => setPassword(e.target.value)} 
-                    />
-                </div>
-                {error && <p className="error-msg">{error}</p>}
-                <button type="submit">로그인</button>
-            </form>
-            <p>
-                계정이 없으신가요? <Link to="/signup">회원가입</Link>
-            </p>
+            </div>
         </div>
     );
 }

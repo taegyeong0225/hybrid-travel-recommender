@@ -1,0 +1,125 @@
+/* ===== New Signup Page Style (mirrors Login) ===== */
+
+body, html {
+  overflow: hidden;
+}
+
+.signup-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fbff 0%, #e8f0ff 100%);
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.signup-box {
+  padding: 50px 40px;
+  width: 420px;
+  background: #ffffff;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  border-radius: 18px;
+  border: 1px solid #e5ebff;
+  text-align: center;
+  color: #333;
+  animation: fadeInDown 0.5s ease-out forwards;
+}
+
+.signup-box h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #1e3a8a;
+}
+
+.signup-subtitle {
+  margin-bottom: 28px;
+  font-size: 0.95rem;
+  color: #5f6b85;
+}
+
+.input-group {
+  position: relative;
+  margin-bottom: 20px; /* Slightly less margin for more fields */
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 14px;
+  background: #f9fbff;
+  border: 1px solid #cbd5f7;
+  border-radius: 10px;
+  font-size: 1rem;
+  color: #2c2f40;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.input-group input::placeholder {
+  color: #888;
+}
+
+.input-group input:focus {
+  border-color: #5a7dff;
+  background: #f9fbff;
+  box-shadow: 0 0 8px rgba(90, 125, 255, 0.25);
+}
+
+.signup-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background-color: #1e3a8a;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 20px;
+}
+
+.signup-btn:hover {
+  background-color: #2748c4;
+  box-shadow: 0 6px 16px rgba(30, 58, 138, 0.25);
+  transform: none;
+}
+
+.error-msg {
+  color: #d93025;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.signup-footer {
+  margin-top: 20px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.signup-footer a {
+  color: #1e3a8a;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.signup-footer a:hover {
+  text-decoration: underline;
+}
+
+@media (max-height: 700px) {
+  .signup-page-container {
+    align-items: flex-start;
+    padding-top: 1%;
+  }
+}

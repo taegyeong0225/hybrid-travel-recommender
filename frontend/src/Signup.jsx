@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import './App.css'; // Assuming shared styles
+import './Signup.css';
 
 function Signup() {
     const [name, setName] = useState('');
@@ -8,6 +8,15 @@ function Signup() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Component mounts: disable scroll
+        document.body.style.overflow = 'hidden';
+        // Component unmounts: enable scroll
+        return () => {
+            document.body.style.overflow = 'auto';
+        };
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -30,7 +39,6 @@ function Signup() {
                 throw new Error(data.detail || '회원가입에 실패했습니다.');
             }
 
-            // Signup successful, navigate to login page
             navigate('/login');
 
         } catch (err) {
@@ -39,39 +47,45 @@ function Signup() {
     };
 
     return (
-        <div className="login-container"> {/* Using login-container style for consistency */}
-            <h2>회원가입</h2>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                    <label>이름</label>
-                    <input 
-                        type="text" 
-                        value={name} 
-                        onChange={(e) => setName(e.target.value)} 
-                    />
+        <div className="signup-page-container">
+            <div className="signup-box">
+                <h2>Create Your Account</h2>
+                <p className="signup-subtitle">Join TripMate and start your journey</p>
+                <form onSubmit={handleSubmit}>
+                    <div className="input-group">
+                        <input 
+                            type="text" 
+                            value={name} 
+                            onChange={(e) => setName(e.target.value)} 
+                            placeholder="Name"
+                            required
+                        />
+                    </div>
+                    <div className="input-group">
+                        <input 
+                            type="text" 
+                            value={username} 
+                            onChange={(e) => setUsername(e.target.value)} 
+                            placeholder="Username"
+                            required
+                        />
+                    </div>
+                    <div className="input-group">
+                        <input 
+                            type="password" 
+                            value={password} 
+                            onChange={(e) => setPassword(e.target.value)} 
+                            placeholder="Password"
+                            required
+                        />
+                    </div>
+                    {error && <p className="error-msg">{error}</p>}
+                    <button type="submit" className="signup-btn">Sign Up</button>
+                </form>
+                <div className="signup-footer">
+                    <p>Already have an account? <Link to="/login">Log In</Link></p>
                 </div>
-                <div className="form-group">
-                    <label>아이디</label>
-                    <input 
-                        type="text" 
-                        value={username} 
-                        onChange={(e) => setUsername(e.target.value)} 
-                    />
-                </div>
-                <div className="form-group">
-                    <label>비밀번호</label>
-                    <input 
-                        type="password" 
-                        value={password} 
-                        onChange={(e) => setPassword(e.target.value)} 
-                    />
-                </div>
-                {error && <p className="error-msg">{error}</p>}
-                <button type="submit">가입하기</button>
-            </form>
-            <p>
-                이미 계정이 있으신가요? <Link to="/login">로그인</Link>
-            </p>
+            </div>
         </div>
     );
 }
