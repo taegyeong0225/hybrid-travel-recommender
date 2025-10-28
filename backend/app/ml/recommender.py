@@ -31,13 +31,6 @@ class TodayRecommender:
         # 집 같은 불필요한 장소 제거
         result = result[result['VISIT_AREA_NM'] != '집']
 
-
-        # result = popularity_df.merge(
-        #     trending_df,
-        #     on='VISIT_AREA_NM',
-        #     how='left'
-        # ).fillna({'trending_score': 0})
-
         # 3. 관광지 정보 조인
         area_info = self.df[['VISIT_AREA_NM', 'VISIT_AREA_TYPE_CD', 'SIDO']].drop_duplicates()
         result = result.merge(area_info, on='VISIT_AREA_NM', how='left')

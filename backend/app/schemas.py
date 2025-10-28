@@ -58,3 +58,34 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     username: Optional[str] = None
+
+
+# --- Schemas for Recommendation Endpoint ---
+
+class RecommendationItem(BaseModel):
+    rank: int
+    name: str
+    type: str
+    region: str
+    score: float
+    popularity: float
+    context_score: float
+    avg_rating: float
+    is_trending: bool
+
+class WeatherSummary(BaseModel):
+    condition: str
+    temperature: float
+    description: str
+
+class RecommendationMetadata(BaseModel):
+    season: str
+    daytype: str
+    weather_summary: dict[str, WeatherSummary]
+    generated_at: str
+    total_candidates: int
+    request_date: str
+
+class RecommendationResponse(BaseModel):
+    recommendations: list[RecommendationItem]
+    metadata: RecommendationMetadata
