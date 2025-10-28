@@ -88,11 +88,40 @@ def clean_float_values(obj):
 
 @app.post("/recommend")
 def recommend():
-    result = subprocess.run(
-    ["python", "-m", "app.ml.main", "--json"],
-    capture_output=True,
-    text=True
-    )
+    # --- Redis 연결 확인 ---
+    if not redis_client:
+        raise HTTPException(status_code=503, detail="Redis service unavailable")
+
+    cache_key = "recommend:default"
+    cached_data = redis_client.get(cache_key)
+    current_date = datetime.now().date().isoformat()
+
+    # --- 현재 날씨 확인 (서울 기준) ---
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    weather_client = WeatherAPI(api_key)
+    current_weather = weather_client.get_weather("서울")
+    current_condition = current_weather.get("condition", "unknown")
+
+    # --- 캐시 HIT 여부 확인 ---
+    if cached_data:
+        try:
+            cached = json.loads(cached_data)
+            metadata = cached.get("metadata", {})
+            cached_date = metadata.get("request_date")
+            cached_condition = metadata.get("weather_condition")
+
+            if cached_date == current_date and cached_condition == current_condition:
+                logging.info("[CACHE HIT] /recommend — same date & weather, reusing results")
+                return cached
+            else:
+                logging.info("[CACHE INVALID] date/weather changed → regenerating")
+                redis_client.delete(cache_key)
+        except Exception as e:
+            logging.warning(f"[CACHE ERROR] decoding failed: {e}")
+
+    # --- 캐시 MISS → 새로 추천 생성 ---
+    logging.info("[CACHE MISS] running recommender subprocess")
+    result = subprocess.run(["python", "-m", "app.ml.main", "--json"], capture_output=True, text=True)
     output = result.stdout.strip()
 
     if result.returncode != 0 or not output:
@@ -100,8 +129,17 @@ def recommend():
         return {"error": "Failed to get recommendations", "details": error_msg}
 
     try:
-        cleaned_output = clean_float_values(json.loads(output))
-        return cleaned_output
+        data = json.loads(output)
+        data.setdefault("metadata", {})
+        data["metadata"]["request_date"] = current_date
+        data["metadata"]["weather_condition"] = current_condition
+
+        # Redis에 결과를 30분 동안 캐싱
+        redis_client.set(cache_key, json.dumps(data, ensure_ascii=False), ex=1800)
+
+        logging.info("[CACHE SAVE] stored new recommendation result in Redis")
+        return data
+
     except json.JSONDecodeError:
         return {"error": "Invalid JSON output", "raw_output": output}
 
