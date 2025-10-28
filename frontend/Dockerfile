@@ -1,30 +1,31 @@
-# Stage 1: Build the React application
+# 1단계: Vite 앱 빌드
 FROM node:20-alpine as builder
 
+# 작업 디렉토리 설정
 WORKDIR /app
 
+# 패키지 설치 (package.json과 lock 파일만 복사하여 캐시 활용)
 COPY package*.json ./
-# Use npm ci for cleaner installs if package-lock.json is present
 RUN npm install
 
+# 앱 전체 복사 및 빌드
 COPY . .
-
 RUN npm run build
 
-# Stage 2: Serve the built application from a lightweight web server
+# 2단계: Nginx로 정적 파일 서빙
 FROM nginx:stable-alpine
 
-# Copy the custom nginx configuration
+# 사용자 정의 nginx 설정 복사
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy the built files from the builder stage
-COPY --from=builder /app/build /usr/share/nginx/html
+# 빌드 결과물을 nginx의 기본 루트 경로로 복사
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# 권한 수정 (모든 사용자 읽기 가능)
+# 파일 권한 설정 (모든 사용자 읽기 가능)
 RUN chmod -R 755 /usr/share/nginx/html
 
-# Expose port 80 (default for nginx)
+# Nginx 기본 포트 노출
 EXPOSE 80
 
-# Start nginx when the container launches
+# 컨테이너 시작 시 nginx 실행
 CMD ["nginx", "-g", "daemon off;"]

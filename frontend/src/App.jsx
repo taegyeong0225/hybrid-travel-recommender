@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import About from "./About.jsx";
 import Login from "./Login.jsx";
-import Signup from "./Signup.jsx"; // Import Signup component
-import TravelCarousel from "./TravelCarousel.jsx"; // Import Carousel component
+import Signup from "./Signup.jsx"; 
+import TravelCarousel from "./TravelCarousel.jsx"; 
 import "./App.css";
 
 function App() {

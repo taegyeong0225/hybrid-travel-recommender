@@ -13,3 +13,4 @@ passlib
 python-jose[cryptography]
 bcrypt
 python-multipart
+redis

@@ -1,30 +1,22 @@
-# Python base image
+# Python 베이스 이미지
 FROM python:3.9-slim
 
-# Set working directory
+# 작업 디렉토리 설정
 WORKDIR /app
 
-# Copy application code
-COPY ./app /app
-
-# OS 패키지 설치 (scikit-surprise 빌드용)
+# 과학 라이브러리 빌드용 OS 패키지 설치
 RUN apt-get update && apt-get install -y \
     build-essential \
     gfortran \
     && rm -rf /var/lib/apt/lists/*
-    
-RUN pip install --no-cache-dir cython numpy scipy
 
-# Install dependencies
+# requirements 복사 후 의존성 설치
 COPY ./requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
-RUN pip install --no-cache-dir requests pandas numpy
 
-# Expose port and set command
+# 의존성 설치 후 애플리케이션 코드 복사
+COPY . /app
+
+# 포트 노출 및 기본 명령어 설정
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
-
-# Copy input data (host, container)
-COPY ./app/ml/1.inputdata /app/app/ml/1.inputdata
-COPY ./app/ml/2.preprocessed /app/app/ml/2.preprocessed
-COPY ./app/ml/4.SaveModel /app/app/ml/4.SaveModel

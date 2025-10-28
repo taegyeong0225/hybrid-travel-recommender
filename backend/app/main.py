@@ -12,7 +12,7 @@ from .database import engine, get_db
 from .auth import router as auth_router
 from .user_places import router as user_places_router
 from .ml.recommender import TodayRecommender
-from .ml.weather_api import get_current_weather
+from .ml.weather_api import WeatherAPI
 
 import logging
 logging.basicConfig(level=logging.INFO)
@@ -68,6 +68,43 @@ app.include_router(user_places_router)
 def read_root():
     return {"message": "Hello from FastAPI"}
 
+# The recommendation endpoint from previous work
+import subprocess
+import json
+import math
+
+def clean_float_values(obj):
+    if isinstance(obj, dict):
+        return {k: clean_float_values(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [clean_float_values(i) for i in obj]
+    elif isinstance(obj, float):
+        if math.isnan(obj) or math.isinf(obj):
+            return None
+        else:
+            return obj
+    else:
+        return obj
+
+@app.post("/recommend")
+def recommend():
+    result = subprocess.run(
+    ["python", "-m", "app.ml.main", "--json"],
+    capture_output=True,
+    text=True
+    )
+    output = result.stdout.strip()
+
+    if result.returncode != 0 or not output:
+        error_msg = result.stderr.strip()
+        return {"error": "Failed to get recommendations", "details": error_msg}
+
+    try:
+        cleaned_output = clean_float_values(json.loads(output))
+        return cleaned_output
+    except json.JSONDecodeError:
+        return {"error": "Invalid JSON output", "raw_output": output}
+
 @app.get("/recommend/{user_id}", response_model=schemas.RecommendationResponse)
 def get_recommendations_with_caching(user_id: int, db: Session = Depends(get_db)):
     """
@@ -90,8 +127,11 @@ def get_recommendations_with_caching(user_id: int, db: Session = Depends(get_db)
     cached_data = redis_client.get(cache_key)
     current_date = datetime.now().date().isoformat()
     
+    # API 키 세팅 (기존 변수 사용)
+    weather_client = WeatherAPI(api_key=WEATHER_API_KEY)
+
     # For simplicity, we get weather for a default region. This could be user's region.
-    current_weather = get_current_weather(sido="서울")
+    current_weather = weather_client.get_weather(sido="서울")
 
     # 2. Check cache validity
     if cached_data:

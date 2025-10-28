@@ -1,9 +1,9 @@
 import pandas as pd
 from datetime import datetime
 
-from weather_api import WeatherAPI
-from popularity_calculator import PopularityCalculator
-from context_booster import ContextBooster
+from .weather_api import WeatherAPI
+from .popularity_calculator import PopularityCalculator
+from .context_booster import ContextBooster
 
 class TodayRecommender:
     """오늘의 추천 엔진"""

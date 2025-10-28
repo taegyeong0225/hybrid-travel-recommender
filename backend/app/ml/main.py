@@ -8,11 +8,11 @@ import pandas as pd
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(BASE_DIR)
 
-from weather_api import WeatherAPI
-from recommender import TodayRecommender
+from .weather_api import WeatherAPI
+from .recommender import TodayRecommender
 
 # 설정
-WEATHER_API_KEY = "18bf278021bad92baa5b88a7a890be19"  # 여기에 API 키 입력
+WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY") # .env.docker에 저장되어 있음
 DATA_PATH = os.path.join(BASE_DIR, "tn_visit_area_info.csv")
 SGG_PATH = os.path.join(BASE_DIR, "tc_sgg.csv")
 
@@ -53,16 +53,10 @@ if __name__ == "__main__":
     try:
         result = main()
 
-        # FastAPI가 호출하는 경우 (--json 인자 포함)
         if "--json" in sys.argv:
-            # 모든 일반 출력(print)을 막고 JSON만 반환
-            with open(os.devnull, "w") as devnull:
-                with contextlib.redirect_stdout(devnull):
-                    pass
-            sys.stdout.write(json.dumps(result, ensure_ascii=False))
-            sys.stdout.flush()
+            # stdout에 JSON만 출력 (FastAPI에서 읽을 수 있게)
+            print(json.dumps(result, ensure_ascii=False))
         else:
-            # 로컬에서 직접 실행할 때만 텍스트 출력
             print("데이터 로드 완료")
             print("=== 오늘의 추천 여행지 ===")
             for idx, rec in enumerate(result.get("recommendations", []), start=1):
@@ -72,6 +66,5 @@ if __name__ == "__main__":
             print("완료!")
 
     except Exception as e:
-        # 에러 발생 시에도 JSON 형태로 출력
-        sys.stdout.write(json.dumps({"error": str(e)}, ensure_ascii=False))
-        sys.stdout.flush()
+        # 오류 발생 시에도 JSON 형식으로 출력
+        print(json.dumps({"error": str(e)}, ensure_ascii=False))
