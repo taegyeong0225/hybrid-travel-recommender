@@ -25,3 +25,8 @@ dev:
 up:
 	@echo "📦 Starting TripMate via Docker Compose..."
 	@cd $(BACKEND_DIR) && export ENV=docker && docker compose up --build
+
+# Docker 종료
+down:
+	@echo "🛑 Stopping TripMate containers..."
+	@cd $(BACKEND_DIR) && docker compose down
