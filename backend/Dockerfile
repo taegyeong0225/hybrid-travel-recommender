@@ -15,7 +15,14 @@ COPY ./requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 의존성 설치 후 애플리케이션 코드 복사
-COPY . /app
+# COPY . /app
+
+# 전체 복사가 아니라, 필요한 폴더만 선택 복사
+COPY app/ ./
+COPY .env.docker ./
+
+# utills 폴더 복사 추가
+COPY app/utills ./app/utills
 
 # 포트 노출 및 기본 명령어 설정
 EXPOSE 8000

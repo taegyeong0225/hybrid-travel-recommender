@@ -1,0 +1,36 @@
+# 캐시 / 가상환경
+__pycache__/
+*.pyc
+venv/
+.env
+.env.local
+.env.docker
+.ipynb_checkpoints/
+
+# 데이터셋 & 이미지
+*.csv
+*.parquet
+*.feather
+*.zip
+*.json
+app/ml/1.inputdata/
+app/ml/output/
+docs/
+logs/
+
+# 무거운 폴더 제외
+static/
+photo/
+images/
+*.jpg
+*.png
+
+# node / 빌드
+frontend/node_modules/
+frontend/build/
+node_modules/
+
+# 시스템 / IDE
+.DS_Store
+.vscode/
+.idea/

@@ -19,3 +19,10 @@ frontend/node_modules/
 # Ignore environment variables file
 .env
 .env.*
+
+
+static/images/
+backend/app/ml/*.parquet
+backend/app/ml/*.csv
+backend/static/
+backend/app/utills/__pycache__/
