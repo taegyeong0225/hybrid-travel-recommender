@@ -59,20 +59,35 @@ class TodayRecommender:
         return self._format_output(final_recommendations, weather_dict)
 
     def _format_output(self, df: pd.DataFrame, weather_dict: dict) -> dict:
-        """출력 포맷"""
+        """출력 포맷 - 안전성 보강"""
+        df = df.reset_index(drop=True).copy()
 
         recommendations = []
-        for idx, row in df.iterrows():
+        for i, row in df.iterrows():
+            # 안전한 값 추출 / 기본값 적용
+            name = row.get('VISIT_AREA_NM', '') or ''
+            region = row.get('SIDO', '') or ''
+            try:
+                type_cd = int(row.get('VISIT_AREA_TYPE_CD')) if pd.notnull(row.get('VISIT_AREA_TYPE_CD')) else 8
+            except Exception:
+                type_cd = 8
+
+            popularity = float(row.get('popularity_score') or 0.0)
+            context_score = float(row.get('context_score') or 0.0)
+            avg_rating = float(row.get('avg_rating') or 0.0)
+            trending_score = float(row.get('trending_score') or 0.0)
+            final_score = float(row.get('final_score') or 0.0)
+
             recommendations.append({
-                'rank': idx + 1,
-                'name': row['VISIT_AREA_NM'],
-                'type': self._get_type_name(row.get('VISIT_AREA_TYPE_CD', 8)),
-                'region': row.get('SIDO', ''),
-                'score': round(row['final_score'], 3),
-                'popularity': round(row['popularity_score'], 3),
-                'context_score': round(row['context_score'], 3),
-                'avg_rating': round(row['avg_rating'], 2),
-                'is_trending': row['trending_score'] > 0.5
+                'rank': i + 1,
+                'name': name,
+                'type': self._get_type_name(type_cd),
+                'region': region,
+                'score': round(final_score, 3),
+                'popularity': round(popularity, 3),
+                'context_score': round(context_score, 3),
+                'avg_rating': round(avg_rating, 2),
+                'is_trending': trending_score > 0.5
             })
 
         return {
