@@ -153,12 +153,11 @@ function App() {
           <ul className="nav-links">
             <li><Link to="/">Home</Link></li>
             <li><Link to="/about">About</Link></li>
-            {currentUser && <li><Link to="/mypage">마이페이지</Link></li>}
           </ul>
           <div className="nav-login">
             {currentUser ? (
               <>
-                <span className="welcome-msg">{currentUser.name}님</span>
+                <Link to="/mypage" className="welcome-msg">{currentUser.name}님</Link>
                 <button onClick={handleLogout} className="logout-btn">로그아웃</button>
               </>
             ) : (
