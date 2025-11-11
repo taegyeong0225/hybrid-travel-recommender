@@ -49,15 +49,15 @@ function Login() {
     return (
         <div className="login-page-container"> 
             <div className="login-box">
-                <h2>Welcome Back</h2>
-                <p className="login-subtitle">Sign in to continue to TripMate</p>
+                <h2>다시 오신 걸 환영합니다</h2>
+                <p className="login-subtitle">TripMate를 계속 이용하려면 로그인해 주세요.</p>
                 <form onSubmit={handleSubmit}>
                     <div className="input-group">
                         <input 
                             type="text" 
                             value={username} 
                             onChange={(e) => setUsername(e.target.value)} 
-                            placeholder="Username"
+                            placeholder="아이디"
                             required
                         />
                     </div>
@@ -66,16 +66,16 @@ function Login() {
                             type="password" 
                             value={password} 
                             onChange={(e) => setPassword(e.target.value)} 
-                            placeholder="Password"
+                            placeholder="비밀번호"
                             autoComplete="current-password"
                             required
                         />
                     </div>
                     {error && <p className="error-msg">{error}</p>}
-                    <button type="submit" className="login-btn">Login</button>
+                    <button type="submit" className="login-btn">로그인</button>
                 </form>
                 <div className="login-footer">
-                    <p>Don't have an account? <Link to="/signup">Sign Up</Link></p>
+                    <p>아직 계정이 없으신가요? <Link to="/signup">회원가입</Link></p>
                 </div>
             </div>
         </div>

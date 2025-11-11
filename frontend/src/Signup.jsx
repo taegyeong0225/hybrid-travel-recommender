@@ -35,7 +35,14 @@ function Signup() {
             });
 
             if (!response.ok) {
-                const data = await response.json();
+                let data;
+                try {
+                    // 응답이 JSON 형식인지 확인
+                    data = await response.json();
+                } catch {
+                    // 비어 있거나 JSON이 아닐 경우 대비
+                    data = {};
+                }
                 throw new Error(data.detail || '회원가입에 실패했습니다.');
             }
 

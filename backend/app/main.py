@@ -17,6 +17,8 @@ from .ml.weather_api import WeatherAPI
 import logging
 logging.basicConfig(level=logging.INFO)
 
+import requests
+
 # --- App Initialization ---
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
@@ -59,8 +61,8 @@ app.add_middleware(
 )
 
 # --- Routers ---
-app.include_router(auth_router)
-app.include_router(user_places_router)
+app.include_router(auth_router, prefix="/api")
+app.include_router(user_places_router, prefix="/api")
 
 
 # --- Endpoints ---
@@ -214,3 +216,57 @@ def get_recommendations_with_caching(user_id: int, db: Session = Depends(get_db)
         return new_recommendations
 
     return new_recommendations
+
+
+
+# 이미지 추가
+@app.get("/image")
+def get_tour_image(place: str):
+    """
+    장소명 기반 관광사진 정보 조회 API
+    - 한국관광공사 TourAPI (데이터 ID: 15101914)
+    - Redis 캐시 적용 (30분 TTL)
+    """
+    if not redis_client:
+        raise HTTPException(status_code=503, detail="Redis service unavailable")
+
+    # 캐시 키
+    cache_key = f"image:{place}"
+    cached_url = redis_client.get(cache_key)
+    if cached_url:
+        logging.info(f"[CACHE HIT] image for '{place}'")
+        return {"place": place, "image_url": cached_url}
+
+    # 환경 변수에서 API 키 불러오기
+    TOURAPI_KEY = os.getenv("TOURAPI_KEY")
+    if not TOURAPI_KEY:
+        raise HTTPException(status_code=500, detail="TOURAPI_KEY not set")
+
+    # 관광사진정보 API 요청
+    url = (
+        f"http://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1"
+        f"?serviceKey={TOURAPI_KEY}&keyword={place}&_type=json"
+    )
+
+    try:
+        res = requests.get(url, timeout=10)
+        res.raise_for_status()
+        data = res.json()
+
+        items = data.get("response", {}).get("body", {}).get("items", {}).get("item", [])
+        if not items:
+            return {"place": place, "image_url": None, "message": "No image found"}
+
+        # 대표 이미지 선택 (첫 번째 항목)
+        image_url = items[0].get("galWebImageUrl")
+
+        # Redis에 캐싱 (TTL 30분)
+        if image_url:
+            redis_client.set(cache_key, image_url, ex=1800)
+            logging.info(f"[CACHE SAVE] stored image for '{place}' in Redis")
+
+        return {"place": place, "image_url": image_url}
+
+    except requests.RequestException as e:
+        logging.error(f"Failed to fetch image for {place}: {e}")
+        raise HTTPException(status_code=500, detail="Image fetch failed")

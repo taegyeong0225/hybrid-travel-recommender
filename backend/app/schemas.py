@@ -51,6 +51,13 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
+class UserResponse(UserBase):
+    id: int
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
 # Token Schemas
 class Token(BaseModel):
     access_token: str

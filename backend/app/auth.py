@@ -63,13 +63,17 @@ async def get_current_user(db: Session = Depends(get_db), token: str = Depends(o
     return user
 
 # --- API Endpoints ---
-@router.post("/signup", response_model=schemas.User)
+@router.post("/signup", response_model=schemas.UserResponse)
 def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_username(db, username=user.username)
     if db_user:
         raise HTTPException(status_code=400, detail="Username already registered")
+
     hashed_password = get_password_hash(user.password)
-    return crud.create_user(db=db, user=user, hashed_password=hashed_password)
+    created_user = crud.create_user(db=db, user=user, hashed_password=hashed_password)
+
+    # ORM → Pydantic 변환
+    return schemas.UserResponse.from_orm(created_user)
 
 @router.post("/login", response_model=schemas.Token)
 def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
