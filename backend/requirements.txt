@@ -9,8 +9,9 @@ scikit-learn
 scikit-surprise
 joblib
 requests
-passlib
+passlib[bcrypt]
 python-jose[cryptography]
-bcrypt
+bcrypt>=4.0.0
 python-multipart
 redis
+pyarrow

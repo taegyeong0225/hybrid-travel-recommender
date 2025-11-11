@@ -13,12 +13,12 @@ from .recommender import TodayRecommender
 
 # 설정
 WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY") # .env.docker에 저장되어 있음
-DATA_PATH = os.path.join(BASE_DIR, "tn_visit_area_info.csv")
+PARQUET_PATH = os.path.join(BASE_DIR, "tn_visit_area_info.parquet")
 SGG_PATH = os.path.join(BASE_DIR, "tc_sgg.csv")
 
 def main():
     # 1. 데이터 로드
-    df = pd.read_csv(DATA_PATH)
+    df = pd.read_parquet(PARQUET_PATH, engine="pyarrow")
 
     # 2. SGG → SIDO 매핑
     try:
