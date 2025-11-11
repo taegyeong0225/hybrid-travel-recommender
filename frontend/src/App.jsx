@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import About from "./About.jsx";
 import Login from "./Login.jsx";
-import Signup from "./Signup.jsx"; 
-import TravelCarousel from "./TravelCarousel.jsx"; 
+import Signup from "./Signup.jsx";
+import MyPage from "./MyPage.jsx";
+import TravelCarousel from "./TravelCarousel.jsx";
 import "./App.css";
 
 function App() {
@@ -48,19 +49,26 @@ function App() {
 
   useEffect(() => {
     console.log("✅ useEffect triggered");
-  
+
     let isMounted = true;
-  
-    const loadRecommendations = async () => {
+
+    const loadData = async () => {
+      // Check if user is logged in
+      const token = localStorage.getItem('token');
+      if (token && isMounted) {
+        await fetchCurrentUser(token);
+      }
+
+      // Load recommendations
       if (!didFetch.current && isMounted) {
         console.log("📡 fetching recommendations...");
         await fetchRecommendations();
         didFetch.current = true;
       }
     };
-  
-    loadRecommendations();
-  
+
+    loadData();
+
     return () => {
       console.log("🧹 cleanup triggered");
       isMounted = false;
@@ -82,7 +90,6 @@ function App() {
     }
   };
 
-  // eslint-disable-next-line no-unused-vars
   const fetchCurrentUser = async (token) => {
     try {
       const response = await fetch('/api/auth/me', {
@@ -91,10 +98,12 @@ function App() {
       if (response.ok) {
         const userData = await response.json();
         setCurrentUser(userData);
+      } else {
+        // Token is invalid, clear it
+        handleLogout();
       }
     } catch (error) {
       console.error("Failed to fetch user", error);
-      // Token might be invalid, so clear it
       handleLogout();
     }
   };
@@ -144,6 +153,7 @@ function App() {
           <ul className="nav-links">
             <li><Link to="/">Home</Link></li>
             <li><Link to="/about">About</Link></li>
+            {currentUser && <li><Link to="/mypage">마이페이지</Link></li>}
           </ul>
           <div className="nav-login">
             {currentUser ? (
@@ -176,6 +186,7 @@ function App() {
             <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/mypage" element={<MyPage />} />
           </Routes>
         </main>
       </div>
