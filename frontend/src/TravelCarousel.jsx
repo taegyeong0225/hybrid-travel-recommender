@@ -90,7 +90,13 @@ const TravelCarousel = ({ places, currentUser, handlePlaceAction, userFavorites 
       {places.map((place) => (
         <SwiperSlide key={place.name} className="card">
           <img
-            src={place.image_url ? `http://localhost:8000${place.image_url}` : `/images/${encodeURIComponent(place.name)}.jpg`}
+            src={
+              place.image_url
+                ? (place.image_url.startsWith('http')
+                    ? place.image_url  // 외부 URL (한국관광공사 API)
+                    : `http://localhost:8000${place.image_url}`)  // 내부 static 파일
+                : `/images/${encodeURIComponent(place.name)}.jpg`  // fallback
+            }
             alt={place.name}
             onError={handleImageError}
           />

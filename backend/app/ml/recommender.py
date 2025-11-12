@@ -6,6 +6,7 @@ from datetime import datetime
 from .weather_api import WeatherAPI
 from .popularity_calculator import PopularityCalculator
 from .context_booster import ContextBooster
+from .tour_image_api import TourImageAPI
 
 class TodayRecommender:
     """오늘의 추천 엔진"""
@@ -15,6 +16,7 @@ class TodayRecommender:
         self.weather_api = WeatherAPI(weather_api_key)
         self.context_booster = ContextBooster()
         self.image_map = self._load_image_map()
+        self.tour_image_api = TourImageAPI()  # 한국관광공사 API 클라이언트
 
     def _load_image_map(self) -> dict:
         """image_map.json 파일 로딩"""
@@ -93,7 +95,17 @@ class TodayRecommender:
             final_score = float(row.get('final_score') or 0.0)
 
             # 이미지 경로 가져오기
-            image_url = self.image_map.get(name, '/static/default.jpg')
+            # 1. 먼저 image_map.json에서 찾기
+            image_url = self.image_map.get(name)
+
+            # 2. 없으면 한국관광공사 API로 조회 (외부 URL)
+            if not image_url:
+                api_image_url = self.tour_image_api.get_image_url(name)
+                if api_image_url:
+                    image_url = api_image_url
+                else:
+                    # 3. 그래도 없으면 기본 이미지
+                    image_url = '/static/default.jpg'
 
             recommendations.append({
                 'rank': i + 1,
