@@ -90,7 +90,7 @@ const TravelCarousel = ({ places, currentUser, handlePlaceAction, userFavorites 
       {places.map((place) => (
         <SwiperSlide key={place.name} className="card">
           <img
-            src={`/images/${encodeURIComponent(place.name)}.jpg`}
+            src={place.image_url ? `http://localhost:8000${place.image_url}` : `/images/${encodeURIComponent(place.name)}.jpg`}
             alt={place.name}
             onError={handleImageError}
           />

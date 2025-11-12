@@ -1,4 +1,6 @@
 import pandas as pd
+import json
+import os
 from datetime import datetime
 
 from .weather_api import WeatherAPI
@@ -12,6 +14,17 @@ class TodayRecommender:
         self.df = df
         self.weather_api = WeatherAPI(weather_api_key)
         self.context_booster = ContextBooster()
+        self.image_map = self._load_image_map()
+
+    def _load_image_map(self) -> dict:
+        """image_map.json 파일 로딩"""
+        try:
+            image_map_path = os.path.join(os.path.dirname(__file__), 'image_map.json')
+            with open(image_map_path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception as e:
+            print(f"Warning: Failed to load image_map.json: {e}")
+            return {}
 
     def recommend(self, top_n: int = 20) -> dict:
         """메인 추천 로직"""
@@ -79,6 +92,9 @@ class TodayRecommender:
             trending_score = float(row.get('trending_score') or 0.0)
             final_score = float(row.get('final_score') or 0.0)
 
+            # 이미지 경로 가져오기
+            image_url = self.image_map.get(name, '/static/default.jpg')
+
             recommendations.append({
                 'rank': i + 1,
                 'name': name,
@@ -89,7 +105,8 @@ class TodayRecommender:
                 'popularity': round(popularity, 3),
                 'context_score': round(context_score, 3),
                 'avg_rating': round(avg_rating, 2),
-                'is_trending': trending_score > 0.5
+                'is_trending': trending_score > 0.5,
+                'image_url': image_url
             })
 
         return {
