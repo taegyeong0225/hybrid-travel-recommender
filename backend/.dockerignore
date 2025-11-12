@@ -1,0 +1,15 @@
+venv
+.vscode
+__pycache__
+
+# Exclude static files from the backend image. They should be served by a dedicated web server.
+static/
+
+# Exclude the preprocessing script, it's not needed at runtime.
+app/ml/preprocess_images.py
+
+# Ignore large ML data/model directories, but not the whole ml dir
+app/ml/1.inputdata/
+app/ml/2.preprocessed/
+app/ml/4.SaveModel/
+app/ml/*.parquet
