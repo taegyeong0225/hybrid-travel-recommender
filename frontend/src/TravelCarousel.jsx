@@ -1,17 +1,49 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Navigation } from 'swiper/modules';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBookmark as faBookmarkSolid, faCircleCheck as faCircleCheckSolid } from '@fortawesome/free-solid-svg-icons';
+import { faBookmark as faBookmarkRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/effect-coverflow';
 import './TravelCarousel.css';
 
 const TravelCarousel = ({ places, currentUser, handlePlaceAction }) => {
+  const [bookmarkedPlaces, setBookmarkedPlaces] = useState(new Set());
+  const [checkedInPlaces, setCheckedInPlaces] = useState(new Set());
+
   const handleImageError = (e) => {
     if (!e.target.src.includes('/images/default.jpg')) {
       e.target.onerror = null;
       e.target.src = '/images/default.jpg';
     }
+  };
+
+  const handleBookmark = (placeName) => {
+    setBookmarkedPlaces(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(placeName)) {
+        newSet.delete(placeName);
+      } else {
+        newSet.add(placeName);
+      }
+      return newSet;
+    });
+    handlePlaceAction('/api/favorites/add', placeName);
+  };
+
+  const handleCheckIn = (placeName) => {
+    setCheckedInPlaces(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(placeName)) {
+        newSet.delete(placeName);
+      } else {
+        newSet.add(placeName);
+      }
+      return newSet;
+    });
+    handlePlaceAction('/api/visited/add', placeName);
   };
 
   return (
@@ -42,8 +74,24 @@ const TravelCarousel = ({ places, currentUser, handlePlaceAction }) => {
           />
           {currentUser && (
             <div className="card-actions">
-              <button onClick={() => handlePlaceAction('/api/favorites/add', place.name)}>❤️</button>
-              <button onClick={() => handlePlaceAction('/api/visited/add', place.name)}>✔️</button>
+              <button
+                className={`bookmark-btn ${bookmarkedPlaces.has(place.name) ? 'active' : ''}`}
+                onClick={() => handleBookmark(place.name)}
+                title="찜하기"
+              >
+                <FontAwesomeIcon
+                  icon={bookmarkedPlaces.has(place.name) ? faBookmarkSolid : faBookmarkRegular}
+                />
+              </button>
+              <button
+                className={`checkin-btn ${checkedInPlaces.has(place.name) ? 'active' : ''}`}
+                onClick={() => handleCheckIn(place.name)}
+                title="체크인"
+              >
+                <FontAwesomeIcon
+                  icon={checkedInPlaces.has(place.name) ? faCircleCheckSolid : faCircle}
+                />
+              </button>
             </div>
           )}
           <div className="card-content">

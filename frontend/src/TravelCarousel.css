@@ -95,27 +95,94 @@
 
 .card-actions {
   position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
   display: flex;
-  gap: 5px;
+  gap: 8px;
 }
 
 .card-actions button {
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
+  background: rgba(255, 255, 255, 0.95);
   border: none;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
-  font-size: 16px;
+  width: 42px;
+  height: 42px;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(5px);
+}
+
+.card-actions button svg {
+  font-size: 18px;
+  transition: transform 0.3s ease;
 }
 
 .card-actions button:hover {
-  background: rgba(0, 0, 0, 0.7);
+  transform: scale(1.15) translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.card-actions button:hover svg {
+  transform: scale(1.1);
+}
+
+.bookmark-btn {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+}
+
+.bookmark-btn svg {
+  color: #bbb;
+}
+
+.bookmark-btn:hover {
+  background: linear-gradient(135deg, #FFE5E5 0%, #FFD6D6 100%) !important;
+}
+
+.bookmark-btn:hover svg {
+  color: #FF6B6B;
+}
+
+.bookmark-btn.active {
+  background: linear-gradient(135deg, #FFD6D6 0%, #FFC7C7 100%) !important;
+}
+
+.bookmark-btn.active svg {
+  color: #FF5252;
+}
+
+.bookmark-btn.active:hover {
+  background: linear-gradient(135deg, #FFC7C7 0%, #FFB8B8 100%) !important;
+}
+
+.checkin-btn {
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
+}
+
+.checkin-btn svg {
+  color: #bbb;
+}
+
+.checkin-btn:hover {
+  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%) !important;
+}
+
+.checkin-btn:hover svg {
+  color: #5A8DEE;
+}
+
+.checkin-btn.active {
+  background: linear-gradient(135deg, #BBDEFB 0%, #90CAF9 100%) !important;
+}
+
+.checkin-btn.active svg {
+  color: #3A68E8;
+}
+
+.checkin-btn.active:hover {
+  background: linear-gradient(135deg, #90CAF9 0%, #64B5F6 100%) !important;
 }
