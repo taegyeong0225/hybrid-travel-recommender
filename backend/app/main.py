@@ -38,7 +38,7 @@ recommender = None
 try:
     # This assumes your data loading logic is simple.
     # If ml/main.py does more complex setup, that logic should be properly modularized.
-    df = pd.read_csv('app/ml/1.inputdata/tn_visit_area_info_E.csv')
+    df = pd.read_csv('app/ml/tn_visit_area_info_with_sido.csv')
     api_key = os.getenv("OPENWEATHER_API_KEY", "YOUR_OPENWEATHER_API_KEY")
     if api_key == "YOUR_OPENWEATHER_API_KEY":
         logging.warning("OPENWEATHER_API_KEY environment variable not set. Using a placeholder.")

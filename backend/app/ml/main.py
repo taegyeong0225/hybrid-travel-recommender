@@ -13,29 +13,31 @@ from .recommender import TodayRecommender
 
 # 설정
 WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY") # .env.docker에 저장되어 있음
-PARQUET_PATH = os.path.join(BASE_DIR, "tn_visit_area_info.parquet")
+PARQUET_PATH = os.path.join(BASE_DIR, "tn_visit_area_info_with_sido.parquet")
 SGG_PATH = os.path.join(BASE_DIR, "tc_sgg.csv")
 
 def main():
     # 1. 데이터 로드
     df = pd.read_parquet(PARQUET_PATH, engine="pyarrow")
 
-    # 2. SGG → SIDO 매핑
-    try:
-        sgg_df = pd.read_csv(SGG_PATH)
+    # 2. SIDO 컬럼 확인 (이미 포함되어 있어야 함)
+    if "SIDO" not in df.columns:
+        # SIDO가 없는 경우에만 SGG → SIDO 매핑 시도
+        try:
+            sgg_df = pd.read_csv(SGG_PATH)
 
-        # 필요한 컬럼만 추출 (SGG_CD, SIDO_NM)
-        if "SIDO_NM" in sgg_df.columns:
-            sgg_info = sgg_df[["SGG_CD", "SIDO_NM"]].drop_duplicates()
-            sgg_info.rename(columns={"SIDO_NM": "SIDO"}, inplace=True)
-        else:
-            sgg_info = sgg_df[["SGG_CD", "SIDO"]].drop_duplicates()
+            # 필요한 컬럼만 추출 (SGG_CD, SIDO_NM)
+            if "SIDO_NM" in sgg_df.columns:
+                sgg_info = sgg_df[["SGG_CD", "SIDO_NM"]].drop_duplicates()
+                sgg_info.rename(columns={"SIDO_NM": "SIDO"}, inplace=True)
+            else:
+                sgg_info = sgg_df[["SGG_CD", "SIDO"]].drop_duplicates()
 
-        # 조인
-        df = df.merge(sgg_info, on="SGG_CD", how="left")
+            # 조인
+            df = df.merge(sgg_info, on="SGG_CD", how="left")
 
-    except FileNotFoundError:
-        df["SIDO"] = "Unknown"
+        except FileNotFoundError:
+            df["SIDO"] = "Unknown"
 
     # 3. Weather API 초기화
     weather_api = WeatherAPI(WEATHER_API_KEY)
