@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Navigation } from 'swiper/modules';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -9,9 +9,31 @@ import 'swiper/css/navigation';
 import 'swiper/css/effect-coverflow';
 import './TravelCarousel.css';
 
-const TravelCarousel = ({ places, currentUser, handlePlaceAction }) => {
+const TravelCarousel = ({ places, currentUser, handlePlaceAction, userFavorites = [], userVisited = [] }) => {
   const [bookmarkedPlaces, setBookmarkedPlaces] = useState(new Set());
   const [checkedInPlaces, setCheckedInPlaces] = useState(new Set());
+
+  // userFavorites/userVisited가 변경되면 상태 업데이트
+  useEffect(() => {
+    if (userFavorites.length > 0 || userVisited.length > 0) {
+      // poi_id로 저장되어 있으므로, place.poi_id와 비교
+      const favSet = new Set();
+      const visitSet = new Set();
+
+      places.forEach(place => {
+        const placeId = place.poi_id || place.name;
+        if (userFavorites.includes(placeId)) {
+          favSet.add(place.name);
+        }
+        if (userVisited.includes(placeId)) {
+          visitSet.add(place.name);
+        }
+      });
+
+      setBookmarkedPlaces(favSet);
+      setCheckedInPlaces(visitSet);
+    }
+  }, [userFavorites, userVisited, places]);
 
   const handleImageError = (e) => {
     if (!e.target.src.includes('/images/default.jpg')) {
@@ -20,30 +42,30 @@ const TravelCarousel = ({ places, currentUser, handlePlaceAction }) => {
     }
   };
 
-  const handleBookmark = (placeName) => {
+  const handleBookmark = (place) => {
     setBookmarkedPlaces(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(placeName)) {
-        newSet.delete(placeName);
+      if (newSet.has(place.name)) {
+        newSet.delete(place.name);
       } else {
-        newSet.add(placeName);
+        newSet.add(place.name);
       }
       return newSet;
     });
-    handlePlaceAction('/api/favorites/add', placeName);
+    handlePlaceAction('/api/favorites/add', place.poi_id || place.name);
   };
 
-  const handleCheckIn = (placeName) => {
+  const handleCheckIn = (place) => {
     setCheckedInPlaces(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(placeName)) {
-        newSet.delete(placeName);
+      if (newSet.has(place.name)) {
+        newSet.delete(place.name);
       } else {
-        newSet.add(placeName);
+        newSet.add(place.name);
       }
       return newSet;
     });
-    handlePlaceAction('/api/visited/add', placeName);
+    handlePlaceAction('/api/visited/add', place.poi_id || place.name);
   };
 
   return (
@@ -76,7 +98,7 @@ const TravelCarousel = ({ places, currentUser, handlePlaceAction }) => {
             <div className="card-actions">
               <button
                 className={`bookmark-btn ${bookmarkedPlaces.has(place.name) ? 'active' : ''}`}
-                onClick={() => handleBookmark(place.name)}
+                onClick={() => handleBookmark(place)}
                 title="찜하기"
               >
                 <FontAwesomeIcon
@@ -85,7 +107,7 @@ const TravelCarousel = ({ places, currentUser, handlePlaceAction }) => {
               </button>
               <button
                 className={`checkin-btn ${checkedInPlaces.has(place.name) ? 'active' : ''}`}
-                onClick={() => handleCheckIn(place.name)}
+                onClick={() => handleCheckIn(place)}
                 title="체크인"
               >
                 <FontAwesomeIcon
@@ -97,7 +119,7 @@ const TravelCarousel = ({ places, currentUser, handlePlaceAction }) => {
           <div className="card-content">
             <h3>{place.name}</h3>
             <p>{place.region}</p>
-            <p>⭐ {typeof place.score === "number" ? place.score.toFixed(3) : place.score}</p>
+            {/* <p>⭐ {typeof place.score === "number" ? place.score.toFixed(3) : place.score}</p> */}
           </div>
         </SwiperSlide>
       ))}

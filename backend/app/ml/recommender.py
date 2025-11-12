@@ -67,6 +67,7 @@ class TodayRecommender:
             # 안전한 값 추출 / 기본값 적용
             name = row.get('VISIT_AREA_NM', '') or ''
             region = row.get('SIDO', '') or ''
+            poi_id = row.get('POI_ID', '') or ''
             try:
                 type_cd = int(row.get('VISIT_AREA_TYPE_CD')) if pd.notnull(row.get('VISIT_AREA_TYPE_CD')) else 8
             except Exception:
@@ -81,6 +82,7 @@ class TodayRecommender:
             recommendations.append({
                 'rank': i + 1,
                 'name': name,
+                'poi_id': str(poi_id) if poi_id else name,  # POI_ID가 없으면 name을 사용
                 'type': self._get_type_name(type_cd),
                 'region': region,
                 'score': round(final_score, 3),

@@ -5,6 +5,7 @@ import Login from "./Login.jsx";
 import Signup from "./Signup.jsx";
 import MyPage from "./MyPage.jsx";
 import TravelCarousel from "./TravelCarousel.jsx";
+import Toast from "./Toast.jsx";
 import "./App.css";
 
 function App() {
@@ -14,6 +15,9 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const didFetch = useRef(false);
   const [scrolled, setScrolled] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [userFavorites, setUserFavorites] = useState([]);
+  const [userVisited, setUserVisited] = useState([]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -98,6 +102,8 @@ function App() {
       if (response.ok) {
         const userData = await response.json();
         setCurrentUser(userData);
+        // 사용자 정보를 가져온 후 찜/체크인 목록 로드
+        await fetchUserPlaces(token);
       } else {
         // Token is invalid, clear it
         handleLogout();
@@ -108,6 +114,30 @@ function App() {
     }
   };
 
+  const fetchUserPlaces = async (token) => {
+    try {
+      // 찜 목록 가져오기
+      const favResponse = await fetch('/api/favorites', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (favResponse.ok) {
+        const favorites = await favResponse.json();
+        setUserFavorites(favorites.map(f => f.poi_id));
+      }
+
+      // 체크인 목록 가져오기
+      const visitedResponse = await fetch('/api/visited', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (visitedResponse.ok) {
+        const visited = await visitedResponse.json();
+        setUserVisited(visited.map(v => v.poi_id));
+      }
+    } catch (error) {
+      console.error("Failed to fetch user places", error);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('token');
     setCurrentUser(null);
@@ -115,10 +145,14 @@ function App() {
     window.location.href = '/';
   };
 
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+  };
+
   const handlePlaceAction = async (endpoint, poi_id) => {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert('로그인이 필요합니다.');
+      showToast('로그인이 필요합니다.', 'error');
       return;
     }
     try {
@@ -134,10 +168,16 @@ function App() {
         const err = await response.json();
         throw new Error(err.detail || '요청 실패');
       }
-      alert('처리되었습니다!');
+
+      // 성공 메시지 설정
+      const actionName = endpoint.includes('favorites') ? '찜 목록에 추가했습니다!' : '체크인 완료!';
+      showToast(actionName, 'success');
+
+      // 찜/체크인 목록 다시 불러오기 (이미 위에서 선언한 token 사용)
+      await fetchUserPlaces(token);
     } catch (error) {
       console.error('Place action failed:', error);
-      alert(`오류: ${error.message}`);
+      showToast(`오류: ${error.message}`, 'error');
     }
   };
 
@@ -174,10 +214,12 @@ function App() {
                 {loading && <p>추천 불러오는 중...</p>}
                 {result?.error && <p className="error-msg">{result.error}</p>}
                 {result?.recommendations && (
-                  <TravelCarousel 
-                    places={result.recommendations} 
-                    currentUser={currentUser} 
-                    handlePlaceAction={handlePlaceAction} 
+                  <TravelCarousel
+                    places={result.recommendations}
+                    currentUser={currentUser}
+                    handlePlaceAction={handlePlaceAction}
+                    userFavorites={userFavorites}
+                    userVisited={userVisited}
                   />
                 )}
               </div>
@@ -188,6 +230,13 @@ function App() {
             <Route path="/mypage" element={<MyPage />} />
           </Routes>
         </main>
+        {toast && (
+          <Toast
+            message={toast.message}
+            type={toast.type}
+            onClose={() => setToast(null)}
+          />
+        )}
       </div>
     </Router>
   );
