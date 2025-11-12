@@ -5,6 +5,7 @@ import pandas as pd
 from datetime import datetime
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 
 from . import models, schemas
@@ -22,6 +23,14 @@ import requests
 # --- App Initialization ---
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
+
+# --- Static Files ---
+static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+    logging.info(f"Static files mounted from: {static_dir}")
+else:
+    logging.warning(f"Static directory not found: {static_dir}")
 
 # --- Redis Connection ---
 try:
