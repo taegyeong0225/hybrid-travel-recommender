@@ -135,7 +135,9 @@ function MyPage() {
                                     <div key={fav.id} className="place-card">
                                         <div className="place-header">
                                             <h3>{fav.poi_id}</h3>
-                                            <span className="place-icon">⭐</span>
+                                            <span className="place-icon favorite">
+                                                <i className="fa-solid fa-star"></i>
+                                            </span>
                                         </div>
                                         <p className="place-date">
                                             추가일: {new Date(fav.created_at).toLocaleDateString('ko-KR')}
@@ -160,7 +162,9 @@ function MyPage() {
                                     <div key={visit.id} className="place-card">
                                         <div className="place-header">
                                             <h3>{visit.poi_id}</h3>
-                                            <span className="place-icon">✓</span>
+                                            <span className="place-icon visited">
+                                                <i className="fa-solid fa-check"></i>
+                                            </span>
                                         </div>
                                         <p className="place-date">
                                             방문일: {new Date(visit.visited_at).toLocaleDateString('ko-KR')}

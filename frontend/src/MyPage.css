@@ -175,6 +175,14 @@
     font-size: 1.5em;
 }
 
+.place-icon.favorite {
+    color: #FFD700; /* Gold */
+}
+
+.place-icon.visited {
+    color: #28a745; /* Green */
+}
+
 .place-date {
     color: #64748b;
     font-size: 0.9em;
