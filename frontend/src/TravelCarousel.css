@@ -20,9 +20,24 @@
   font-weight: 800;
   color: #1A202C;
   margin: 0;
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
   line-height: 1.2;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  font-style: normal;
+}
+
+.title-icon {
+  font-size: 0.9em;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  transform: rotate(-15deg);
+  display: inline-block;
+  padding-bottom: 5px;
 }
 
 /* 검색창 컨테이너 */

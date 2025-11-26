@@ -18,12 +18,13 @@
 
 /* Header Section */
 .mypage-header {
-    background: linear-gradient(135deg, #5A8DEE 0%, #3A68E8 100%);
+    background: #FFFFFF;
     border-radius: 20px;
     padding: 40px;
     margin-bottom: 40px;
-    color: white;
-    box-shadow: 0 10px 40px rgba(90, 141, 238, 0.3);
+    color: #2D3748;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
 }
 
 .user-profile {
@@ -37,31 +38,34 @@
     width: 100px;
     height: 100px;
     border-radius: 50%;
-    background: white;
-    color: #3A68E8;
+    background: #F7FAFC;
+    color: #2D3748;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 3em;
-    font-weight: bold;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    font-weight: 800;
+    border: 2px solid #E2E8F0;
 }
 
 .profile-info h1 {
     margin: 0 0 10px 0;
     font-size: 2em;
-    font-weight: 700;
+    font-weight: 800;
+    color: #1A202C;
+    letter-spacing: -0.5px;
 }
 
 .username {
     font-size: 1.1em;
-    opacity: 0.9;
+    color: #4A5568;
     margin: 5px 0;
+    font-weight: 500;
 }
 
 .member-since {
     font-size: 0.95em;
-    opacity: 0.8;
+    color: #718096;
     margin: 5px 0;
 }
 
@@ -73,28 +77,31 @@
 }
 
 .stat-card {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
+    background: #F7FAFC;
+    border: 1px solid #E2E8F0;
     border-radius: 15px;
     padding: 25px;
     text-align: center;
-    transition: transform 0.3s ease, background 0.3s ease;
+    transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
 .stat-card:hover {
     transform: translateY(-5px);
-    background: rgba(255, 255, 255, 0.25);
+    border-color: #CBD5E0;
+    background: #EDF2F7;
 }
 
 .stat-number {
     font-size: 2.5em;
-    font-weight: bold;
+    font-weight: 800;
     margin-bottom: 5px;
+    color: #1A202C;
 }
 
 .stat-label {
     font-size: 1em;
-    opacity: 0.9;
+    color: #4A5568;
+    font-weight: 500;
 }
 
 /* Content Section */
@@ -102,14 +109,15 @@
     background: white;
     border-radius: 20px;
     padding: 30px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #E2E8F0;
 }
 
 /* Tabs */
 .tabs {
     display: flex;
     gap: 10px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid #E2E8F0;
     margin-bottom: 30px;
 }
 
@@ -119,7 +127,7 @@
     border: none;
     font-size: 1.1em;
     font-weight: 500;
-    color: #64748b;
+    color: #718096;
     cursor: pointer;
     transition: all 0.3s ease;
     border-bottom: 3px solid transparent;
@@ -128,13 +136,13 @@
 }
 
 .tab:hover {
-    color: #5A8DEE;
+    color: #2D3748;
 }
 
 .tab.active {
-    color: #3A68E8;
-    border-bottom-color: #3A68E8;
-    font-weight: 600;
+    color: #1A202C;
+    border-bottom-color: #1A202C;
+    font-weight: 700;
 }
 
 /* Places Grid */
@@ -145,16 +153,18 @@
 }
 
 .place-card {
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
     border-radius: 15px;
     padding: 25px;
     transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .place-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    border-color: #CBD5E0;
 }
 
 .place-header {
@@ -167,8 +177,8 @@
 .place-header h3 {
     margin: 0;
     font-size: 1.3em;
-    color: #1e293b;
-    font-weight: 600;
+    color: #1A202C;
+    font-weight: 700;
 }
 
 .place-icon {
@@ -176,15 +186,17 @@
 }
 
 .place-icon.favorite {
-    color: #FFD700; /* Gold */
+    color: #ECC94B;
+    /* Gold */
 }
 
 .place-icon.visited {
-    color: #28a745; /* Green */
+    color: #48BB78;
+    /* Green */
 }
 
 .place-date {
-    color: #64748b;
+    color: #718096;
     font-size: 0.9em;
     margin: 10px 0;
 }
@@ -192,23 +204,25 @@
 .place-rating {
     margin: 10px 0;
     font-size: 1em;
+    color: #4A5568;
 }
 
 .place-memo {
     margin-top: 15px;
     padding: 15px;
-    background: rgba(255, 255, 255, 0.6);
+    background: #F7FAFC;
     border-radius: 10px;
-    color: #475569;
+    color: #4A5568;
     font-size: 0.95em;
     line-height: 1.5;
+    border: 1px solid #EDF2F7;
 }
 
 /* Empty State */
 .empty-state {
     text-align: center;
     padding: 60px 20px;
-    color: #64748b;
+    color: #718096;
 }
 
 .empty-state p {
@@ -217,21 +231,22 @@
 }
 
 .go-home-btn {
-    background: linear-gradient(135deg, #5A8DEE 0%, #3A68E8 100%);
+    background: #2D3748;
     color: white;
     padding: 12px 30px;
     border: none;
     border-radius: 10px;
     font-size: 1em;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(90, 141, 238, 0.3);
+    box-shadow: 0 4px 12px rgba(45, 55, 72, 0.2);
 }
 
 .go-home-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(90, 141, 238, 0.4);
+    background: #1A202C;
+    box-shadow: 0 6px 16px rgba(45, 55, 72, 0.3);
 }
 
 /* Responsive Design */

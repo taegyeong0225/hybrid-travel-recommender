@@ -36,12 +36,22 @@
   height: 70px;
 }
 
-/* Left: Logo */
+/* Center: Logo */
+.nav-logo {
+  position: absolute;
+  left: 44%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .nav-logo img {
-  max-height: 80px;
+  max-height: 65px;
   width: auto;
   object-fit: contain;
   transition: transform 0.3s ease;
+  filter: brightness(0) saturate(100%);
 }
 
 .nav-logo:hover img {

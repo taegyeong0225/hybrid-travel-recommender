@@ -190,7 +190,6 @@ function App() {
             </Link>
           </div>
           <ul className="nav-links">
-            <li><Link to="/">Home</Link></li>
           </ul>
           <div className="nav-login">
             {currentUser ? (

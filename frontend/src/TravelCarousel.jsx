@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { EffectCoverflow, Navigation } from 'swiper/modules';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBookmark as faBookmarkSolid, faCircleCheck as faCircleCheckSolid, faSearch, faMountain, faHotel, faUtensils, faCalendarDays, faShoppingBag, faCar, faStar } from '@fortawesome/free-solid-svg-icons';
+import { faBookmark as faBookmarkSolid, faCircleCheck as faCircleCheckSolid, faSearch, faMountain, faHotel, faUtensils, faCalendarDays, faShoppingBag, faCar, faStar, faPlane } from '@fortawesome/free-solid-svg-icons';
 import { faBookmark as faBookmarkRegular, faCircle } from '@fortawesome/free-regular-svg-icons';
 import 'swiper/css';
 import 'swiper/css/navigation';
@@ -13,7 +13,10 @@ import './TravelCarousel.css';
 const MainTitle = () => {
   return (
     <div className="main-title">
-      <h2>오늘의 추천 여행지</h2>
+      <h2>
+        오늘의 추천 여행지
+        <span className="title-icon"><FontAwesomeIcon icon={faPlane} /></span>
+      </h2>
     </div>
   );
 };
@@ -23,7 +26,7 @@ const SearchBar = () => {
   return (
     <div className="search-bar-container">
       <div className="search-bar">
-        <input type="text" placeholder="검색어를 입력하세요" />
+        <input type="text" placeholder="가고 싶은 / 다녀온 여행지를 입력하세요" />
         <button>
           <FontAwesomeIcon icon={faSearch} />
         </button>
@@ -34,7 +37,7 @@ const SearchBar = () => {
 
 // 해시태그 컴포넌트
 const HashtagSection = () => {
-  const hashtags = ['#전남음악창작소', '#아트로공연연습센터', '#유무주차장', '#전기차 충전소'];
+  const hashtags = ['#단기 소수 여행객', '#장기 단체여행객', '#균형잡힌 일반 여행객'];
 
   return (
     <div className="hashtag-section">
@@ -51,11 +54,9 @@ const HashtagSection = () => {
 const QuickMenu = () => {
   const menuItems = [
     { icon: faStar, label: '추천' },
-    { icon: faMountain, label: '오스테이' },
     { icon: faCalendarDays, label: '축제' },
     { icon: faUtensils, label: '음식점' },
     { icon: faHotel, label: '숙박' },
-    { icon: faCar, label: '숙박' },
     { icon: faShoppingBag, label: '쇼핑' }
   ];
 
