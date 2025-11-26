@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import About from "./About.jsx";
 import Login from "./Login.jsx";
 import Signup from "./Signup.jsx";
 import MyPage from "./MyPage.jsx";
@@ -35,16 +34,16 @@ function App() {
 
   // useEffect(() => {
   //   let isMounted = true; // 언마운트된 이후 setState 방지
-  
+
   //   const loadRecommendations = async () => {
   //     if (!didFetch.current && isMounted) {
   //       await fetchRecommendations();
   //       didFetch.current = true;
   //     }
   //   };
-  
+
   //   loadRecommendations();
-  
+
   //   // 클린업
   //   return () => {
   //     isMounted = false;
@@ -191,8 +190,6 @@ function App() {
             </Link>
           </div>
           <ul className="nav-links">
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/about">About</Link></li>
           </ul>
           <div className="nav-login">
             {currentUser ? (
@@ -201,7 +198,7 @@ function App() {
                 <button onClick={handleLogout} className="logout-btn">로그아웃</button>
               </>
             ) : (
-                <Link to="/login">로그인</Link>
+              <Link to="/login">로그인</Link>
             )}
           </div>
         </nav>
@@ -210,7 +207,6 @@ function App() {
           <Routes>
             <Route path="/" element={
               <div className="recommend-container">
-                <h2>오늘의 추천 여행지 ✈️</h2>
                 {loading && <p>추천 불러오는 중...</p>}
                 {result?.error && <p className="error-msg">{result.error}</p>}
                 {result?.recommendations && (
@@ -224,7 +220,6 @@ function App() {
                 )}
               </div>
             } />
-            <Route path="/about" element={<About />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/mypage" element={<MyPage />} />

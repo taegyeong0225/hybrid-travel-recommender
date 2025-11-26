@@ -46,7 +46,6 @@ Single Page Application(SPA)는 **하나의 HTML 페이지만 로드**하고, �
 <Router>
   <Routes>
     <Route path="/" element={...} />
-    <Route path="/about" element={<About />} />
     <Route path="/login" element={<Login />} />
     <Route path="/signup" element={<Signup />} />
     <Route path="/mypage" element={<MyPage />} />
@@ -85,7 +84,6 @@ Single Page Application(SPA)는 **하나의 HTML 페이지만 로드**하고, �
 ```jsx
 <ul className="nav-links">
   <li><Link to="/">Home</Link></li>
-  <li><Link to="/about">About</Link></li>
   {currentUser && <li><Link to="/mypage">마이페이지</Link></li>}
 </ul>
 ```
