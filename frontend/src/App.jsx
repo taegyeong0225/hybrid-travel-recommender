@@ -207,17 +207,15 @@ function App() {
           <Routes>
             <Route path="/" element={
               <div className="recommend-container">
-                {loading && <p>추천 불러오는 중...</p>}
-                {result?.error && <p className="error-msg">{result.error}</p>}
-                {result?.recommendations && (
-                  <TravelCarousel
-                    places={result.recommendations}
-                    currentUser={currentUser}
-                    handlePlaceAction={handlePlaceAction}
-                    userFavorites={userFavorites}
-                    userVisited={userVisited}
-                  />
-                )}
+                <TravelCarousel
+                  places={result?.recommendations || []}
+                  currentUser={currentUser}
+                  handlePlaceAction={handlePlaceAction}
+                  userFavorites={userFavorites}
+                  userVisited={userVisited}
+                  loading={loading}
+                  error={result?.error}
+                />
               </div>
             } />
             <Route path="/login" element={<Login />} />
