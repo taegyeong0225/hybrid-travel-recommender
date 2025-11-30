@@ -20,11 +20,11 @@ logging.basicConfig(level=logging.INFO)
 
 import requests
 
-# --- App Initialization ---
+# --- 앱 초기화 ---
 models.Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
-# --- Static Files ---
+# --- 정적 파일 ---
 static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
 if os.path.exists(static_dir):
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
@@ -32,7 +32,7 @@ if os.path.exists(static_dir):
 else:
     logging.warning(f"Static directory not found: {static_dir}")
 
-# --- Redis Connection ---
+# --- Redis 연결 ---
 try:
     redis_client = redis.Redis(host='redis', port=6379, db=0, decode_responses=True)
     redis_client.ping()
@@ -41,13 +41,13 @@ except redis.exceptions.ConnectionError as e:
     logging.error(f"Could not connect to Redis: {e}")
     redis_client = None
 
-# --- ML Model Loading ---
-# Load data and model on startup to avoid reloading on every request
+# --- ML 모델 로딩 ---
+# 매 요청마다 다시 로드하지 않도록 시작 시 데이터와 모델을 로드합니다
 recommender = None
 try:
-    # This assumes your data loading logic is simple.
-    # If ml/main.py does more complex setup, that logic should be properly modularized.
-    df = pd.read_csv('app/ml/tn_visit_area_info_with_sido.csv')
+    # 데이터 로딩 로직이 간단하다고 가정합니다.
+    # ml/main.py가 더 복잡한 설정을 수행한다면, 해당 로직은 적절히 모듈화되어야 합니다.
+    df = pd.read_csv('app/ml/tn_visit_area_info_all_with_sido_v3.csv')
     api_key = os.getenv("OPENWEATHER_API_KEY", "YOUR_OPENWEATHER_API_KEY")
     if api_key == "YOUR_OPENWEATHER_API_KEY":
         logging.warning("OPENWEATHER_API_KEY environment variable not set. Using a placeholder.")
@@ -59,7 +59,7 @@ except Exception as e:
     logging.error(f"An error occurred during model loading: {e}")
 
 
-# --- Middleware ---
+# --- 미들웨어 ---
 origins = ["http://localhost:3000", "http://127.0.0.1:3000"]
 app.add_middleware(
     CORSMiddleware,
@@ -69,17 +69,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Routers ---
+# --- 라우터 ---
 app.include_router(auth_router, prefix="/api")
 app.include_router(user_places_router, prefix="/api")
 
 
-# --- Endpoints ---
+# --- 엔드포인트 ---
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI"}
 
-# The recommendation endpoint from previous work
+# 이전 작업의 추천 엔드포인트
 import subprocess
 import json
 import math
@@ -157,17 +157,17 @@ def recommend():
 @app.get("/recommend/{user_id}", response_model=schemas.RecommendationResponse)
 def get_recommendations_with_caching(user_id: int, db: Session = Depends(get_db)):
     """
-    Get travel recommendations for a user with Redis caching.
+    Redis 캐싱을 사용하여 사용자를 위한 여행 추천을 가져옵니다.
 
-    - Caches results in Redis with a 30-minute TTL.
-    - Invalidates cache if the date or weather has changed since the last recommendation.
+    - 결과를 Redis에 30분 TTL로 캐시합니다.
+    - 마지막 추천 이후 날짜나 날씨가 변경된 경우 캐시를 무효화합니다.
     """
     if not redis_client:
         raise HTTPException(status_code=503, detail="Redis service is unavailable.")
     if not recommender:
         raise HTTPException(status_code=503, detail="Recommendation service is not available.")
 
-    # 1. Check user existence (optional but good practice)
+    # 1. 사용자 존재 확인 (선택 사항이지만 권장됨)
     user = db.query(models.User).filter(models.User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
@@ -179,22 +179,22 @@ def get_recommendations_with_caching(user_id: int, db: Session = Depends(get_db)
     # API 키 세팅 (기존 변수 사용)
     weather_client = WeatherAPI(api_key=WEATHER_API_KEY)
 
-    # For simplicity, we get weather for a default region. This could be user's region.
+    # 간단하게 하기 위해 기본 지역의 날씨를 가져옵니다. 이는 사용자의 지역이 될 수 있습니다.
     current_weather = weather_client.get_weather(sido="서울")
 
-    # 2. Check cache validity
+    # 2. 캐시 유효성 확인
     if cached_data:
         try:
             cached_result = json.loads(cached_data)
             metadata = cached_result.get("metadata", {})
             stored_date = metadata.get("request_date")
             
-            # The recommender's output contains a summary for multiple regions.
-            # We'll check the weather for the primary region ('서울') for invalidation.
+            # 추천기의 출력에는 여러 지역에 대한 요약이 포함되어 있습니다.
+            # 무효화를 위해 주요 지역('서울')의 날씨를 확인합니다.
             stored_weather_summary = metadata.get("weather_summary", {})
             stored_seoul_weather = stored_weather_summary.get("서울", {}).get("condition")
 
-            # Invalidate if date or weather has changed
+            # 날짜나 날씨가 변경된 경우 무효화
             if stored_date == current_date and stored_seoul_weather == current_weather:
                 logging.info(f"Cache HIT for user {user_id}. Returning cached recommendations.")
                 return cached_result
@@ -205,23 +205,23 @@ def get_recommendations_with_caching(user_id: int, db: Session = Depends(get_db)
             logging.warning(f"Error decoding cache for user {user_id}: {e}. Regenerating.")
 
 
-    # 3. Generate new recommendations if cache miss or invalid
+    # 3. 캐시 미스 또는 무효인 경우 새로운 추천 생성
     logging.info(f"Cache MISS for user {user_id}. Generating new recommendations.")
     
-    # Although the model is not yet personalized, we call it here.
-    # The user_id could be passed to the recommender in the future.
-    new_recommendations = recommender.recommend(top_n=20)
+    # 모델이 아직 개인화되지 않았지만, 여기에서 호출합니다.
+    # user_id는 향후 추천기에 전달될 수 있습니다.
+    new_recommendations = recommender.recommend(top_n=30)
 
-    # Add request-time metadata for cache invalidation logic
+    # 캐시 무효화 로직을 위한 요청 시간 메타데이터 추가
     new_recommendations["metadata"]["request_date"] = current_date
 
-    # 4. Store in Redis with a 30-minute TTL
+    # 4. 30분 TTL로 Redis에 저장
     try:
         redis_client.set(cache_key, json.dumps(new_recommendations), ex=1800)
     except TypeError as e:
-        # This can happen if the recommendation object is not JSON serializable
+        # 추천 객체가 JSON 직렬화 불가능한 경우 발생할 수 있습니다
         logging.error(f"Failed to serialize recommendations for caching: {e}")
-        # Still return the data to the user even if caching fails
+        # 캐싱이 실패하더라도 사용자에게 데이터를 반환합니다
         return new_recommendations
 
     return new_recommendations

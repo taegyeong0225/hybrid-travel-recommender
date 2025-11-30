@@ -7,6 +7,7 @@ from .weather_api import WeatherAPI
 from .popularity_calculator import PopularityCalculator
 from .context_booster import ContextBooster
 from .tour_image_api import TourImageAPI
+from .image_utils import get_place_image
 
 class TodayRecommender:
     """오늘의 추천 엔진"""
@@ -67,10 +68,14 @@ class TodayRecommender:
             0.4 * result['context_score']
         )
 
-        # 7. Top N 자르기
-        final_recommendations = result.sort_values(by="final_score", ascending=False).head(top_n)
+        # 7. 중복 제거 (같은 장소명은 점수가 가장 높은 것만 유지)
+        result = result.sort_values(by='final_score', ascending=False)
+        result = result.drop_duplicates(subset=['VISIT_AREA_NM'], keep='first')
 
-        # 8. 결과 포맷팅
+        # 8. Top N 자르기
+        final_recommendations = result.head(top_n)
+
+        # 9. 결과 포맷팅
         return self._format_output(final_recommendations, weather_dict)
 
     def _format_output(self, df: pd.DataFrame, weather_dict: dict) -> dict:
@@ -94,17 +99,21 @@ class TodayRecommender:
             trending_score = float(row.get('trending_score') or 0.0)
             final_score = float(row.get('final_score') or 0.0)
 
-            # 이미지 경로 가져오기
-            # 1. 먼저 image_map.json에서 찾기
-            image_url = self.image_map.get(name)
-
-            # 2. 없으면 한국관광공사 API로 조회 (외부 URL)
+            # 이미지 경로 가져오기 (우선순위 순서)
+            # 1. image_map.json에서 찾기 (기존 매핑된 이미지)
+            # 2. Google Places API로 실시간 가져오기
+            # 3. 한국관광공사 API로 조회
+            # 4. 기본 이미지
+            
+            image_url = get_place_image(name)
+            
+            # Google Places API에서도 못 찾으면 한국관광공사 API 시도
             if not image_url:
                 api_image_url = self.tour_image_api.get_image_url(name)
                 if api_image_url:
                     image_url = api_image_url
                 else:
-                    # 3. 그래도 없으면 기본 이미지
+                    # 그래도 없으면 기본 이미지
                     image_url = '/static/default.jpg'
 
             recommendations.append({

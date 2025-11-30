@@ -13,7 +13,7 @@ from .recommender import TodayRecommender
 
 # 설정
 WEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY") # .env.docker에 저장되어 있음
-PARQUET_PATH = os.path.join(BASE_DIR, "tn_visit_area_info_with_sido.parquet")
+PARQUET_PATH = os.path.join(BASE_DIR, "tn_visit_area_info_all_with_sido_v3.parquet")
 SGG_PATH = os.path.join(BASE_DIR, "tc_sgg.csv")
 
 def main():
