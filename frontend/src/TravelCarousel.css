@@ -1,3 +1,9 @@
+/* Override Swiper CSS Variables */
+:root {
+  --swiper-navigation-size: 0px !important;
+  --swiper-navigation-color: transparent !important;
+}
+
 .carousel-container {
   position: relative;
   width: 100%;
@@ -142,6 +148,11 @@
   background: transparent;
 }
 
+/* 검색 결과가 적을 때 중앙 정렬 */
+.travel-carousel .swiper-wrapper {
+  justify-content: center;
+}
+
 .travel-carousel .swiper-slide {
   width: 300px;
   border-radius: 20px;
@@ -208,32 +219,57 @@
   color: #718096;
 }
 
-/* Swiper Navigation Arrows */
+/* Swiper Navigation Arrows - White Circle with Blue Arrow */
 .travel-carousel .swiper-button-prev,
 .travel-carousel .swiper-button-next {
-  color: #ffffff;
-  background: #2D3748;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 15px rgba(45, 55, 72, 0.3);
-  transition: all 0.3s ease;
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 50% !important;
+  width: 60px !important;
+  height: 60px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s ease !important;
+  z-index: 50 !important;
 }
 
 .travel-carousel .swiper-button-prev:hover,
 .travel-carousel .swiper-button-next:hover {
-  background: #1A202C;
-  transform: scale(1.1);
-  box-shadow: 0 6px 20px rgba(45, 55, 72, 0.5);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+  transform: scale(1.05) !important;
 }
 
+/* Hide default Swiper arrow */
 .travel-carousel .swiper-button-prev::after,
 .travel-carousel .swiper-button-next::after {
-  font-size: 22px !important;
-  font-weight: bold;
+  display: none !important;
+}
+
+/* Blue chevron arrows */
+.travel-carousel .swiper-button-prev::before,
+.travel-carousel .swiper-button-next::before {
+  content: '' !important;
+  position: absolute !important;
+  width: 12px !important;
+  height: 12px !important;
+  border-left: 3px solid #18416f !important;
+  border-bottom: 3px solid #18416f !important;
+  border-top: none !important;
+  border-right: none !important;
+}
+
+.travel-carousel .swiper-button-prev::before {
+  transform: rotate(45deg) !important;
+  left: 23px !important;
+}
+
+.travel-carousel .swiper-button-next::before {
+  transform: rotate(-135deg) !important;
+  right: 23px !important;
+}
+
+.travel-carousel .swiper-button-prev:hover::before,
+.travel-carousel .swiper-button-next:hover::before {
+  border-color: #357ABD !important;
 }
 
 /* Hover effect for active card */
@@ -281,6 +317,7 @@
   transform: scale(1.15);
 }
 
+/* 가고 싶은 곳 (Bookmark) */
 .bookmark-btn {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
 }
@@ -290,50 +327,51 @@
 }
 
 .bookmark-btn:hover {
-  background: linear-gradient(135deg, #FFE5E5 0%, #FFD6D6 100%) !important;
+  background: linear-gradient(135deg, #FFF4E6 0%, #FFE8CC 100%) !important;
 }
 
 .bookmark-btn:hover svg {
-  color: #FF6B6B;
+  color: #F59E0B;
 }
 
 .bookmark-btn.active {
-  background: linear-gradient(135deg, #FFD6D6 0%, #FFC7C7 100%) !important;
+  background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%) !important;
 }
 
 .bookmark-btn.active svg {
-  color: #FF5252;
+  color: #D97706;
 }
 
 .bookmark-btn.active:hover {
-  background: linear-gradient(135deg, #FFC7C7 0%, #FFB8B8 100%) !important;
+  background: linear-gradient(135deg, #FDE68A 0%, #FCD34D 100%) !important;
 }
 
-.checkin-btn {
+/* 다녀온 곳 (Visited) - Map Marker Icon */
+.visited-btn {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%) !important;
 }
 
-.checkin-btn svg {
-  color: #bbb;
-}
-
-.checkin-btn:hover {
-  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%) !important;
-}
-
-.checkin-btn:hover svg {
+.visited-btn svg {
   color: #5A8DEE;
 }
 
-.checkin-btn.active {
-  background: linear-gradient(135deg, #BBDEFB 0%, #90CAF9 100%) !important;
+.visited-btn:hover {
+  background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%) !important;
 }
 
-.checkin-btn.active svg {
+.visited-btn:hover svg {
   color: #3A68E8;
 }
 
-.checkin-btn.active:hover {
+.visited-btn.active {
+  background: linear-gradient(135deg, #BBDEFB 0%, #90CAF9 100%) !important;
+}
+
+.visited-btn.active svg {
+  color: #2563EB;
+}
+
+.visited-btn.active:hover {
   background: linear-gradient(135deg, #90CAF9 0%, #64B5F6 100%) !important;
 }
 
